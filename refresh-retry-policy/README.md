@@ -82,15 +82,15 @@ Refresh configured to run every 30 minutes, but timeout is set to 1 hour.
 This section provides a demo implementation for **refresh-retry-policy** workflow.
 
 ```mermaid
-classDiagram
-    class BigTable {
-        refresh_at
-        refresh_attempt_uid
-        refresh_attempt_at
-        refresh_attempt_no
-        refresh_timeout_at
-        refresh_disabled_until_update
-        refresh_disabled_user_friendly_reason
+erDiagram
+    BigTable {
+        DateTime refresh_at "Next time to start the refresh"
+        String attempt_uid "A short string that uniquely identifies the current attempt"
+        Integer attempt_no "Current attempt number (greater than 1 if it's a retry)"
+        DateTime started_at "Time when the attempt was started"
+        DateTime deadline_at "The deadline for the current attempt"
+        Boolean refresh_disabled_until_update "True if the refresh is disabled"
+        Boolean refresh_disabled_user_friendly_reason "A message to the end-user explaining why the refresh was disabled"
     }
 ```
 
