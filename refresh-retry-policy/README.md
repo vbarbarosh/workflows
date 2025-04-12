@@ -59,7 +59,8 @@ message: "Provided URL is invalid: https://example.com/broken."
 3. When the refresh process fails.
     - In this case, the next `refresh_at` should be calculated using
       `refresh_attempt_no` and the planned `refresh_at`, with preference given
-      depending on the retry policy.
+      depending on the retry policy (i.e., whether it is necessary to keep the
+      refresh aligned with the original timing).
 
 ## Edge case: Retry overlaps with refresh
 
