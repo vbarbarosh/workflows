@@ -1,0 +1,71 @@
+# Refresh with Retry Policy
+
+Refreshing is simple. Just add a `refresh_at` column to indicate the time for
+the next refresh, and you're done.
+
+Retry is necessary between refreshes. If refreshes happen one after another,
+there would be no need to retry.
+
+So, retry is a mechanism that executes the refresh again before the next
+planned refresh.
+
+Sometimes a refresh should be stopped completely. For example, if the provided
+`input_url` is no longer accessible. In this case, it's better to stop the
+refresh, until the user updates the model, and display the corresponding
+message: "Provided URL is invalid: https://example.com/broken."
+
+**refresh_at**
+- Next time to start a refresh unconditionally, either due to a retry or a
+  normal refresh time (the decision has already been made, and the result is in
+  the `refresh_at` field)
+
+**refresh_attempt_uid**
+- Each refresh process receives a unique token and must stop immediately if the
+  token differs from the one stored in the database.
+
+**refresh_attempt_at**
+- Last time a refresh was started
+
+**refresh_timeout_at**
+- The time when the current refresh process will fail with a timeout reason.
+
+**refresh_attempt_no**
+- Each time a new refresh starts, this variable increases
+- Each time a refresh succeeds, this variable resets to zero
+
+**refresh_disabled_until_update**
+- When not empty, indicates that the refresh was disabled until the next manual
+  save
+
+**refresh_disabled_user_friendly_reason**
+- A reason to display to the customer, usually: "Provided URL is invalid:
+  https://example.com/broken"
+
+## Time to calculate refresh_at
+
+1. When new refresh process starts. This time next refresh_at could be
+   calculated taking into account timeout. It should start no earlier than
+   current time + timeout.
+2. When refresh process succeeds. In previous step (1), next refresh_at was
+   calculated with timeout. But refresh process might succeed much earlier. In
+   this case next refresh_at must be updated to closest possible next
+   refresh_at (without timeout delay). Consider case when timeout=1hr, time to
+   process is only 10 min, and refresh interval is 30 min.
+3. When refresh process failed. In this case, next refresh_at should be
+   calculated using refresh_attempt_no and planned refresh_at (preference
+   should be taken depending on the policy).
+
+## Edge case: Retry overlaps with refresh
+
+Refresh should start every day at 2PM. Time limit for a refresh process is 2
+hours. Due to errors and retry policy, next refresh should start at 1:30PM.
+Should it be started? Or, instead, next refresh should be scheduled 30 minutes
+ahead, at 2PM, and treated as retry refresh? In other words, is it important to
+keep refresh aligned with original timing?
+
+[x] Start refresh every day at specific time. Ignore retries which overlaps
+with original timing.
+
+## Edge case: Refresh overlays with refresh
+
+Refresh configured to run every 30 minutes, but timeout is set to 1 hour.
