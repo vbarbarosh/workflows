@@ -41,7 +41,7 @@ message: "Provided URL is invalid: https://example.com/broken."
 - A reason to display to the customer, usually: "Provided URL is invalid:
   https://example.com/broken"
 
-## Time to calculate refresh_at
+## When to calculate refresh_at
 
 1. When new refresh process starts. This time next refresh_at could be
    calculated taking into account timeout. It should start no earlier than
@@ -128,17 +128,10 @@ class BigTable
                 }
                 switch ($item['type']) {
                 case 'success':
-                    $big_table->refresh_at = ...;
-                    $big_table->refresh_attempt_uid = null;
-                    $big_table->refresh_attempt_at = null;
-                    $big_table->refresh_attempt_no = 0;
-                    $big_table->refresh_timeout_at = null;
+                    $big_table->refresh_retry('success');
                     break;
                 case 'failure':
-                    $big_table->refresh_at = ...;
-                    $big_table->refresh_attempt_uid = null;
-                    $big_table->refresh_attempt_at = null;
-                    $big_table->refresh_timeout_at = null;
+                    $big_table->refresh_retry('failure');
                     break;
                 case 'user_friendly_status':
                     // ...
@@ -158,12 +151,9 @@ class BigTable
         return BigTable::query()->where('refresh_at', '<', now())->orderBy('refresh_at');
     }
 
-    public function start_refresh()
+    public function start_refresh(): void
     {
-        $this->refresh_at = ...;
-        $this->refresh_timeout_at = ...;
-        $this->refresh_attempt_uid = cuid();
-        $this->refresh_attempt_no++;
+        $this->refresh_retry('start');
 
         $redis = Redis::connection();
         $redis->rpush('bigtables-input', json_encode([
@@ -173,6 +163,72 @@ class BigTable
         ]));
 
         $this->save();
+    }
+
+    public function refresh_retry(string $action): void
+    {
+        $anchor = now()->startOfDay()->format('Ymd\THis\Z');
+        $rrule = \RRule\RRule::createFromRfcString("DTSTART:$anchor\nRRULE:FREQ=HOURLY;INTERVAL=2");
+        $timeout = new DateInterval('PT2H');
+        $retry_delay = [null, 'PT0M', 'PT1M', 'PT5M', 'PT15M', 'PT30M', 'PT1H'];
+
+        switch ($action) {
+        case 'start':
+            $this->refresh_attempt_uid = cuid();
+            $this->refresh_attempt_no++;
+            $this->refresh_attempt_started_at = now();
+            $this->refresh_attempt_timeout_at = now()->add($timeout);
+            $this->refresh_at = $rrule->getNthOccurrenceAfter($this->refresh_timeout_at, 1);
+            break;
+        case 'success':
+            $this->refresh_attempt_uid = null;
+            $this->refresh_attempt_no = 0;
+            $this->refresh_attempt_started_at = null;
+            $this->refresh_timeout_timeout_at = null;
+            $this->refresh_at = $rrule->getNthOccurrenceAfter(now(), 1);
+            break;
+        case 'failure':
+            $this->refresh_attempt_uid = null;
+            $this->refresh_attempt_started_at = null;
+            $this->refresh_timeout_timeout_at = null;
+            if (count($retry_delay) < $this->refresh_attempt_no) {
+                // Several attempts were made, but all failed
+                $this->refresh_at = null;
+                $this->refresh_disabled_until_update = true;
+                $this->refresh_disabled_user_friendly_reason = sprintf('Cannot refresh BigTable after %d attempt(s)', $this->refresh_attempt_no);
+                break;
+            }
+            // Schedule a retry
+            $delay = new DateInterval($retry_delay[$this->refresh_attempt_no]);
+            $retry_start_at = now()->add($delay);
+            $retry_timeout_at = $retry_start_at->copy()->add($timeout);
+            $planned_refresh_at = $rrule->getNthOccurrenceAfter(now(), 1);
+            if (!$planned_refresh_at) {
+                // No more planned refreshes are expected.
+                // Start the retry after the specified delay.
+                $this->refresh_at = $retry_start_at;
+                break;
+            }
+            // Keep the refresh aligned with the original timing
+            if ($retry_start_at->gt($planned_refresh_at)) {
+                // Retry starts after the next planned refresh.
+                // Wait less than necessary and start the retry at the next planned refresh.
+                $this->refresh_at = $retry_start_at;
+                break;
+            }
+            if ($retry_timeout_at->gt($planned_refresh_at)) {
+                // Retry starts before the planned refresh but might end after it.
+                // Wait a bit longer and start the retry at the next planned refresh.
+                $this->refresh_at = $retry_start_at;
+                break;
+            }
+            // Retry starts before and is expected to finish before the next planned refresh.
+            // Start the retry after the specified delay.
+            $this->refresh_at = $retry_start_at;
+            break;
+        default:
+            throw new Error("Invalid action: $action");
+        }
     }
 }
 ```
