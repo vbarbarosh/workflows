@@ -43,20 +43,23 @@ message: "Provided URL is invalid: https://example.com/broken."
 
 ## When to calculate `refresh_at`
 
-1. **When new refresh process starts.** This time, the next `refresh_at` must be
-   calculated by considering the timeout. It should start no earlier than the
-   current time plus the timeout.
-2. **When refresh process succeeds.** In the previous step (1), the next
-   `refresh_at` was calculated with the timeout. However, the refresh process
-   might succeed much earlier. In this case, the next `refresh_at` must be
-   updated to the closest possible next `refresh_at` (without the timeout
-   delay). Consider the case when the timeout is 1 hour, the time to process is
-   only 10 minutes, and the refresh interval is 30 minutes. In this scenario,
-   the next `refresh_at` should be updated to the nearest 30-minute interval
-   after the process completes, ignoring the 1-hour timeout delay.
-3. **When the refresh process fails.** In this case, the next `refresh_at`
-   should be calculated using `refresh_attempt_no` and the planned
-   `refresh_at`, with preference given depending on the retry policy.
+1. When new refresh process starts.
+    - This time, the next `refresh_at` must be calculated by considering the
+      timeout. It should start no earlier than the current time plus the
+      timeout.
+2. When refresh process succeeds.
+    - In the previous step (1), the next `refresh_at` was calculated with the
+      timeout. However, the refresh process might succeed much earlier. In this
+      case, the next `refresh_at` must be updated to the closest possible next
+      `refresh_at` (without the timeout delay). Consider the case when the
+      timeout is 1 hour, the time to process is only 10 minutes, and the
+      refresh interval is 30 minutes. In this scenario, the next `refresh_at`
+      should be updated to the nearest 30-minute interval after the process
+      completes, ignoring the 1-hour timeout delay.
+3. When the refresh process fails.
+    - In this case, the next `refresh_at` should be calculated using
+      `refresh_attempt_no` and the planned `refresh_at`, with preference given
+      depending on the retry policy.
 
 ## Edge case: Retry overlaps with refresh
 
