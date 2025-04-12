@@ -1,4 +1,4 @@
-# Handle pluralization of words or phrases based on a given number `n`
+# Handle pluralization of words or phrases
 
 Display count-dependent text with proper grammatical number agreement in English language.
 
