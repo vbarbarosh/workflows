@@ -26,12 +26,12 @@ message: "Provided URL is invalid: https://example.com/broken."
 **refresh_attempt_at**
 - Last time a refresh was started
 
-**refresh_timeout_at**
-- The time when the current refresh process will fail with a timeout reason.
-
 **refresh_attempt_no**
 - Each time a new refresh starts, this variable increases
 - Each time a refresh succeeds, this variable resets to zero
+
+**refresh_timeout_at**
+- The time when the current refresh process will fail with a timeout reason.
 
 **refresh_disabled_until_update**
 - When not empty, indicates that the refresh was disabled until the next manual
@@ -73,6 +73,19 @@ Refresh configured to run every 30 minutes, but timeout is set to 1 hour.
 ## Implementation
 
 This section provides a demo implementation for **refresh-retry-policy** workflow.
+
+```mermaid
+classDiagram
+    class BigTable {
+        refresh_at
+        refresh_attempt_uid
+        refresh_attempt_at
+        refresh_attempt_no
+        refresh_timeout_at
+        refresh_disabled_until_update
+        refresh_disabled_user_friendly_reason
+    }
+```
 
 ```php
 class BigTable
