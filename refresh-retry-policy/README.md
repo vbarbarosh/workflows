@@ -90,7 +90,7 @@ classDiagram
 ```php
 class BigTable
 {
-    static public function cronjob_refresh(Carbon $end)
+    static public function cronjob_refresh(Carbon $end): int
     {
         $out = 0;
         while (now()->lt($end)) {
@@ -100,6 +100,52 @@ class BigTable
             }
             $big_table->start_refresh();
             $out++;
+        }
+        return $out;
+    }
+
+    static public function poll(Carbon $end): int
+    {
+        $redis = Redis::connection();
+
+        $out = 0;
+        while (now()->lt($end)) {
+            list ($strings) = $redis->transaction(function (\Redis $m) {
+                $queue = 'bigtables-output';
+                $limit = 100;
+                $m->lrange($queue, 0, $limit - 1);
+                $m->ltrim($queue, $limit, -1);
+            });
+            if (!count($strings)) {
+                break;
+            }
+            $items = array_map(fn ($v) => json_decode($v, true), $strings);
+            $big_tables = BigTable::query()->whereIn('uid', array_pluck($items, 'big_table_uid'))->get()->keyBy('uid');
+            foreach ($items as $item) {
+                $big_table = $big_tables[$item['big_table_uid']];
+                if ($big_table->request_attempt_uid !== $item['request_attempt_uid']) {
+                    continue;
+                }
+                switch ($item['type']) {
+                case 'success':
+                    $big_table->refresh_at = ...;
+                    $big_table->refresh_attempt_uid = null;
+                    $big_table->refresh_attempt_at = null;
+                    $big_table->refresh_attempt_no = 0;
+                    $big_table->refresh_timeout_at = null;
+                    break;
+                case 'failure':
+                    $big_table->refresh_at = ...;
+                    $big_table->refresh_attempt_uid = null;
+                    $big_table->refresh_attempt_at = null;
+                    $big_table->refresh_timeout_at = null;
+                    break;
+                case 'user_friendly_status':
+                    // ...
+                    break;
+                }
+            }
+            BigTable::upsert($big_tables);
         }
         return $out;
     }
@@ -115,6 +161,7 @@ class BigTable
     public function start_refresh()
     {
         $this->refresh_at = ...;
+        $this->refresh_timeout_at = ...;
         $this->refresh_attempt_uid = cuid();
         $this->refresh_attempt_no++;
 
