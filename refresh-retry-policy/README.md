@@ -69,3 +69,50 @@ with original timing.
 ## Edge case: Refresh overlays with refresh
 
 Refresh configured to run every 30 minutes, but timeout is set to 1 hour.
+
+## Implementation
+
+This section provides a demo implementation for **refresh-retry-policy** workflow.
+
+```php
+class BigTable
+{
+    static public function cronjob_refresh(Carbon $end)
+    {
+        $out = 0;
+        while (now()->lt($end)) {
+            $big_table = BigTable::cast_null(BigTable::query_refresh()->first());
+            if (!$big_table) {
+                break;
+            }
+            $big_table->start_refresh();
+            $out++;
+        }
+        return $out;
+    }
+
+    /**
+     * Select all models for which the refresh process should be started
+     */
+    static public function query_refresh()
+    {
+        return BigTable::query()->where('refresh_at', '<', now())->orderBy('refresh_at');
+    }
+
+    public function start_refresh()
+    {
+        $this->refresh_at = ...;
+        $this->refresh_attempt_uid = cuid();
+        $this->refresh_attempt_no++;
+
+        $redis = Redis::connection();
+        $redis->rpush('bigtables-input', json_encode([
+            'big_table_uid' => $this->uid,
+            'refresh_attempt_uid' => $this->refresh_attempt_uid,
+            'input_url' => $this->input_url,
+        ]));
+
+        $this->save();
+    }
+}
+```
