@@ -66,7 +66,7 @@ keep refresh aligned with original timing?
 [x] Start refresh every day at specific time. Ignore retries which overlaps
 with original timing.
 
-## Edge case: Refresh overlays with refresh
+## Edge case: Refresh overlaps with the following refresh
 
 Refresh configured to run every 30 minutes, but timeout is set to 1 hour.
 
