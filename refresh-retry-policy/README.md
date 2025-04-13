@@ -294,4 +294,9 @@ the banner with "thumbnail creation failed".
 3. On the first failure, retry immediately.
 4. On the second failure, retry after 1 minute.
 5. On the third failure, retry after 5 minutes.
-6. On the fourth failure, mark the banner with "thumbnail creation failed."
+6. On the fourth failure, retry after 15 minutes.
+7. On the fifth failure, retry after 30 minutes.
+8. On the sixth failure, retry after 1 hour.
+9. On the seventh failure
+   - Disable auto-refresh
+   - Send the customer an email that BigTable refresh was disabled
