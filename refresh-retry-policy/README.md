@@ -239,3 +239,17 @@ class BigTable
     }
 }
 ```
+
+## Real-World Scenarios • Create a thumbnail of a banner after editing
+
+A banner was edited. Immediately after it is saved, a request to the thumbnailer
+service should be made to create a fresh thumbnail. However, this request might
+fail. If, after several attempts, the thumbnails still cannot be created, mark
+the banner with "thumbnail creation failed".
+
+1. Send a request to the thumbnailer service.
+2. Allow 1 minute to complete.
+3. On the first failure, retry immediately.
+4. On the second failure, retry after 1 minute.
+5. On the third failure, retry after 5 minutes.
+6. On the fourth failure, mark the banner with "thumbnail creation failed."
