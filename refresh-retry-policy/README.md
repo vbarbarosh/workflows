@@ -286,3 +286,12 @@ the banner with "thumbnail creation failed".
 4. On the second failure, retry after 1 minute.
 5. On the third failure, retry after 5 minutes.
 6. On the fourth failure, mark the banner with "thumbnail creation failed."
+
+## Real-World Scenarios • Refresh BigTable twice per day at 6 AM and 4 PM
+
+1. Refresh BigTable twice per day at 6 AM and 4 PM
+2. Allow 1 hour to complete
+3. On the first failure, retry immediately.
+4. On the second failure, retry after 1 minute.
+5. On the third failure, retry after 5 minutes.
+6. On the fourth failure, mark the banner with "thumbnail creation failed."
