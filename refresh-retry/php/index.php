@@ -42,10 +42,9 @@ class RefreshAttempt
  * A workflow for refreshing models with retry support.
  *
  * The minimum number of variables:
- *   - refresh_at: when to start next refresh
- *   - timeout_at: when to fail current refresh
- *   - attempt_no: will increase on each new refresh, and resets only on success;
- *     necessary to calculate next refresh_at serving as retry
+ *   - refresh_at: when to start the next refresh
+ *   - delay_at: when to fail the current refresh due to a timeout
+ *   - attempt_no: increases with each new refresh and resets only on success
  *
  * Transitions diagram:
  *   start → success|failure,
