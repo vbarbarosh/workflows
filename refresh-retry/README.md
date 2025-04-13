@@ -1,6 +1,45 @@
 # Refresh with Retry Policy
 
-How it could be expressed:
+A workflow for refreshing models with a retry policy.
+
+It is based on the observation that only two variables are necessary to
+implement refresh with backoff retry:
+
+- `refresh_at` — the time to start the refresh process
+- `attempt_no` — the refresh attempt number, which increases with each attempt
+  and resets only on successful completion.
+
+These two variables are the bare minimum. When the refresh mechanism has
+built-in timeout support, they are sufficient. However, to simplify the
+explanation, one additional variable is used:
+
+- `deadline_at` — the time when a running refresh process should be considered
+  stalled and forcefully canceled.
+
+To summarize, the following three variables will be used by this approach:
+
+| Variable      | Description                                                                          |
+|---------------|--------------------------------------------------------------------------------------|
+| `refresh_at`  | The time when the next refresh should be started.                                    |
+| `deadline_at` | The time when the current refresh should be cancelled due to a timeout.              |
+| `attempt_no`  | Attempt number. Increases with each start and resets only when the refresh succeeds. |
+
+And here is an overview of how this approach works:
+
+- 🚀 start new refresh:
+  - 📅 calculate refresh **deadline** time
+  - 🗓 calculate **next refresh** after deadline
+  - ➕ increase `attempt_no`
+- 🎉 success — refresh finished successfully and on time, no retry needed:
+  - 🗓 calculate next refresh time
+  - 🧹 reset deadline time
+  - 🧹 reset `attempt_no`
+- ❌ failure — refresh failed, retry should be performed:
+  - 🗓 calculate next refresh time after immediately after backoff delay
+  - 🧹 reset deadline time
+- 💥 final_failure — several attempts were made, but all failed
+  - 🧹 reset next refresh time
+  - 🧹 reset deadline time
 
 ```php
 refresh_retry([
