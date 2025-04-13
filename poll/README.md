@@ -24,7 +24,7 @@ flowchart TD
     Main["🔁 12-hour cycle"] --> Shift["📥 Shift 10 items"]
     Shift --> Any{"🛑 Any items?"}
     Any --> |👍 Yes| Process["⚙️ Process"]
-    Any --> |👎 No| Sleep["💤 Sleep"]
+    Any --> |👎 No| Sleep["💤 Sleep briefly"]
     Main --> Timer["⏰ Every 15 minutes"]
     Timer --> Ping["📡 Ping"]
 ```
