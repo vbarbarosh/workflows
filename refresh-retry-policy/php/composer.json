@@ -1,0 +1,6 @@
+{
+    "require": {
+        "rlanvin/php-rrule": "^2.5",
+        "nesbot/carbon": "^2.73"
+    }
+}
