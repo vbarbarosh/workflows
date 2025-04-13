@@ -292,13 +292,13 @@ class BigTable
             if ($retry_start_at->gt($planned_refresh_at)) {
                 // Retry starts after the next planned refresh.
                 // Wait less than necessary and start the retry at the next planned refresh.
-                $this->refresh_at = $retry_start_at;
+                $this->refresh_at = $planned_refresh_at;
                 break;
             }
             if ($retry_timeout_at->gt($planned_refresh_at)) {
                 // Retry starts before the planned refresh but might end after it.
                 // Wait a bit longer and start the retry at the next planned refresh.
-                $this->refresh_at = $retry_start_at;
+                $this->refresh_at = $planned_refresh_at;
                 break;
             }
             // Retry starts before and is expected to finish before the next planned refresh.
