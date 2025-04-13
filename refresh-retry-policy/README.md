@@ -1,5 +1,38 @@
 # Refresh with Retry Policy
 
+How it could be expressed:
+
+```php
+refresh_retry([
+    'rrule' => 'RRULE:FREQ=HOURLY;INTERVAL=2',
+    'timeout' => '1 hour',
+    'retries' => [
+        0,
+        '1 minute',
+        '5 minute',
+        '10 minutes',
+        '15 minutes',
+    ],
+]);
+```
+
+```php
+refresh_retry([
+    'expr' => '
+        - Refresh the model every 2 hours
+        - Allow 1 hour for a response
+        - On the first failure, retry immediately
+        - On the second failure, retry after 1 minute
+        - On the third failure, retry after 5 minutes
+        - On the fourth failure, retry after 10 minutes
+        - On the fifth failure, retry after 15 minutes
+        - Panic
+    ',
+]);
+```
+
+## Reasoning
+
 Refreshing is simple. Just add a `refresh_at` column to indicate the time for
 the next refresh, and you're done.
 
