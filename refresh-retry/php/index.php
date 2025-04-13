@@ -64,7 +64,7 @@ function refresh_retry(array $params): void
             // Start the retry after the specified delay.
             call_user_func($params['fn'], [
                 'refresh_at' => $retry_start_at,
-                'deadline_at' => $deadline_at,
+                'deadline_at' => null,
                 'attempt_no' => $attempt_no,
                 'final_failure' => false,
             ]);
@@ -77,7 +77,7 @@ function refresh_retry(array $params): void
             // Wait less than necessary and start the retry at the next planned refresh.
             call_user_func($params['fn'], [
                 'refresh_at' => $planned_refresh_at,
-                'deadline_at' => $deadline_at,
+                'deadline_at' => null,
                 'attempt_no' => $attempt_no,
                 'final_failure' => false,
             ]);
@@ -88,7 +88,7 @@ function refresh_retry(array $params): void
             // Wait a bit longer and start the retry at the next planned refresh.
             call_user_func($params['fn'], [
                 'refresh_at' => $planned_refresh_at,
-                'deadline_at' => $deadline_at,
+                'deadline_at' => null,
                 'attempt_no' => $attempt_no,
                 'final_failure' => false,
             ]);
@@ -98,7 +98,7 @@ function refresh_retry(array $params): void
         // Start the retry after the specified delay.
         call_user_func($params['fn'], [
             'refresh_at' => $retry_start_at,
-            'deadline_at' => $deadline_at,
+            'deadline_at' => null,
             'attempt_no' => $attempt_no,
             'final_failure' => false,
         ]);
