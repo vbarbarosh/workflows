@@ -1,7 +1,7 @@
 # Long polling
 
 A workflow for monitoring the output queue and either processing messages or
-sleeping if the queue is empty.
+sleeping briefly if the queue is empty:
 
 - 📥 Shift items from a queue,
 - ⚙️ process them,
