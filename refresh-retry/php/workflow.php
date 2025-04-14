@@ -24,7 +24,7 @@ class RefreshAttempt
  *
  * The minimum number of variables:
  *   - refresh_at: when to start the next refresh
- *   - delay_at: when to fail the current refresh due to a timeout
+ *   - deadline_at: when to fail the current refresh due to a timeout
  *   - attempt_no: increases with each new refresh and resets only on success
  *
  * Transitions diagram:
