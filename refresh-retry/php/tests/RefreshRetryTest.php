@@ -26,18 +26,6 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
-    #[Test] // attempt_no: Should throw "$attempt_no must be a non-negative integer: ..."
-    public function should_throw___attempt_no_must_be_a_non_negative_integer(): void
-    {
-        $regexp = '/^\$attempt_no must be a non-negative integer:.+$/';
-        $this->assetThrows($regexp, function () {
-            refresh_retry(['attempt_no' => -1]);
-        });
-        $this->assetThrows($regexp, function () {
-            refresh_retry(['attempt_no' => '']);
-        });
-    }
-
     #[Test] // timeout: Should throw "$timeout must be a valid DateInterval expression (or instance) with an interval greater than zero"
     public function should_throw___timeout_must_be_a_valid_DateInterval_expression_or_instance_with_an_interval_greater_than_zero(): void
     {
@@ -55,6 +43,18 @@ final class RefreshRetryTest extends TestCase
             $timeout = new DateInterval('PT1M');
             $timeout->invert = true;
             refresh_retry(['timeout' => $timeout]);
+        });
+    }
+
+    #[Test] // attempt_no: Should throw "$attempt_no must be a non-negative integer: ..."
+    public function should_throw___attempt_no_must_be_a_non_negative_integer(): void
+    {
+        $regexp = '/^\$attempt_no must be a non-negative integer:.+$/';
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['attempt_no' => -1]);
+        });
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['attempt_no' => '']);
         });
     }
 
