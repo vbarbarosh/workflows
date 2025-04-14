@@ -37,6 +37,8 @@ class RefreshAttempt
  *   - $timeout | Expected time to complete the refresh process. | A valid, non-inverted, non-zero DateInterval expression (or null for the default 10-minute timeout).
  *   - $attempt_no | Current attempt number. | Non-negative integer.
  *   - $retry_intervals | List of backoff retry delays. | An array (or null) of DateInterval expressions (empty for immediate retry).
+ *   - $action | One of: start, success, failure.
+ *   - $fn | A function to save `refresh_at`, `deadline_at`, and `attempt_no` | A Callable which the following signature: function (RefreshAttempt $attempt) { ... }
  */
 function refresh_retry(array $params): void
 {
