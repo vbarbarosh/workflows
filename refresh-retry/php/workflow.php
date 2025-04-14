@@ -55,7 +55,7 @@ function refresh_retry(array $params): void
     try {
         $rrule = null;
         if (isset($params['rrule'])) {
-            // DTSTART:20250101T000000\nRRULE:FREQ=HOURLY;INTERVAL=2
+            // DTSTART:20250101T000000Z\nRRULE:FREQ=HOURLY;INTERVAL=2
             $rrule = RRule::createFromRfcString($params['rrule']);
         }
     }
