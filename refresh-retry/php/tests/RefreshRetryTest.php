@@ -6,19 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 final class RefreshRetryTest extends TestCase
 {
-    #[Test] // Should throw "Invalid parameters: ..."
-    public function should_throw___invalid_parameters(): void
-    {
-        $this->assetThrows('/^Invalid parameters: \w+$/', function () {
-            refresh_retry([
-                'foo' => null,
-                'action' => 'start',
-                'fn' => fn () => 0,
-            ]);
-        });
-    }
-
-    #[Test] // rrule: Should throw "$rrule must be a valid RRULE expression or null"
+    #[Test] // Should throw "$rrule must be a valid RRULE expression or null"
     public function should_throw___rrule_must_be_a_valid_rrule_expression_or_null(): void
     {
         $regexp = '/^\$rrule must be a valid RRULE expression \(or null\)/';
@@ -30,7 +18,7 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
-    #[Test] // timeout: Should throw "$timeout must be a valid DateInterval expression (or instance) with an interval greater than zero"
+    #[Test] // Should throw "$timeout must be a valid DateInterval expression (or instance) with an interval greater than zero"
     public function should_throw___timeout_must_be_a_valid_DateInterval_expression_or_instance_with_an_interval_greater_than_zero(): void
     {
         $regexp = '/^\$timeout must be a valid DateInterval expression \(or instance\) with an interval greater than zero/';
@@ -50,7 +38,7 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
-    #[Test] // attempt_no: Should throw "$attempt_no must be a non-negative integer: ..."
+    #[Test] // Should throw "$attempt_no must be a non-negative integer: ..."
     public function should_throw___attempt_no_must_be_a_non_negative_integer(): void
     {
         $regexp = '/^\$attempt_no must be a non-negative integer:.+$/';
@@ -62,7 +50,7 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
-    #[Test] // retry_intervals: Should throw "$retry_intervals Must be an array (or null) of DateInterval expressions (empty values for immediate retry)"
+    #[Test] // Should throw "$retry_intervals Must be an array (or null) of DateInterval expressions (empty values for immediate retry)"
     public function should_throw___retry_intervals_must_be_an_array_of_DateInterval_expressions(): void
     {
         $regexp = '/\$retry_intervals Must be an array \(or null\) of DateInterval expressions \(empty values for immediate retry\)/';
@@ -71,7 +59,7 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
-    #[Test] // action: Should throw "$action Must be one of: start, success, failure"
+    #[Test] // Should throw "$action Must be one of: start, success, failure"
     public function should_throw___action_must_be_one_of_start_success_failure(): void
     {
         $regexp = '/^\$action Must be one of: start, success, failure/';
@@ -86,7 +74,7 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
-    #[Test] // fn: Should throw "$fn Must be a callable"
+    #[Test] // Should throw "$fn Must be a callable"
     public function should_throw___fn_must_be_a_callable(): void
     {
         $regexp = '/^\$fn Must be a callable/';
@@ -98,6 +86,18 @@ final class RefreshRetryTest extends TestCase
         });
         $this->assetThrows($regexp, function () {
             refresh_retry(['action' => 'start', 'fn' => true]);
+        });
+    }
+
+    #[Test] // Should throw "Invalid parameters: ..."
+    public function should_throw___invalid_parameters(): void
+    {
+        $this->assetThrows('/^Invalid parameters: \w+$/', function () {
+            refresh_retry([
+                'foo' => null,
+                'action' => 'start',
+                'fn' => fn () => 0,
+            ]);
         });
     }
 
