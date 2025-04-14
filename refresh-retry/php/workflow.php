@@ -97,10 +97,26 @@ function refresh_retry(array $params): void
         throw new InvalidArgumentException(trim("\$retry_intervals Must be an array (or null) of DateInterval expressions (empty values for immediate retry)\n\n$error_details"));
     }
 
-    switch ($params['action']) {
+    $action = $params['action'] ?? null;
+    $fn = $params['fn'] ?? null;
+
+    unset($params['now']);
+    unset($params['rrule']);
+    unset($params['timeout']);
+    unset($params['attempt_no']);
+    unset($params['retry_intervals']);
+    unset($params['action']);
+    unset($params['fn']);
+
+    if (!empty($params)) {
+        $keys = implode(', ', array_keys($params));
+        throw new InvalidArgumentException("Invalid parameters: $keys");
+    }
+
+    switch ($action) {
     case 'start':
         $deadline_at = $now->copy()->add($timeout);
-        call_user_func($params['fn'], new RefreshAttempt([
+        call_user_func($fn, new RefreshAttempt([
             'refresh_at' => empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1)),
             'deadline_at' => $deadline_at,
             'attempt_no' => $attempt_no + 1,
@@ -108,7 +124,7 @@ function refresh_retry(array $params): void
         ]));
         break;
     case 'success':
-        call_user_func($params['fn'], new RefreshAttempt([
+        call_user_func($fn, new RefreshAttempt([
             'refresh_at' => empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1)),
             'deadline_at' => null,
             'attempt_no' => 0,
@@ -118,7 +134,7 @@ function refresh_retry(array $params): void
     case 'failure':
         if (count($retry_intervals) <= $attempt_no) {
             // Several attempts were made, but all failed
-            call_user_func($params['fn'], new RefreshAttempt([
+            call_user_func($fn, new RefreshAttempt([
                 'refresh_at' => null,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
@@ -146,7 +162,7 @@ function refresh_retry(array $params): void
         if (!$planned_refresh_at) {
             // No more planned refreshes are expected.
             // Start the retry after the specified delay.
-            call_user_func($params['fn'], new RefreshAttempt([
+            call_user_func($fn, new RefreshAttempt([
                 'refresh_at' => $retry_start_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
@@ -159,7 +175,7 @@ function refresh_retry(array $params): void
         if ($retry_start_at->gt($planned_refresh_at)) {
             // Retry starts after the next planned refresh.
             // Wait less than necessary and start the retry at the next planned refresh.
-            call_user_func($params['fn'], new RefreshAttempt([
+            call_user_func($fn, new RefreshAttempt([
                 'refresh_at' => $planned_refresh_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
@@ -170,7 +186,7 @@ function refresh_retry(array $params): void
         if ($deadline_at->gt($planned_refresh_at)) {
             // Retry starts before the planned refresh but might end after it.
             // Wait a bit longer and start the retry at the next planned refresh.
-            call_user_func($params['fn'], new RefreshAttempt([
+            call_user_func($fn, new RefreshAttempt([
                 'refresh_at' => $planned_refresh_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
@@ -180,7 +196,7 @@ function refresh_retry(array $params): void
         }
         // Retry starts before and is expected to finish before the next planned refresh.
         // Start the retry after the specified delay.
-        call_user_func($params['fn'], new RefreshAttempt([
+        call_user_func($fn, new RefreshAttempt([
             'refresh_at' => $retry_start_at,
             'deadline_at' => null,
             'attempt_no' => $attempt_no,
@@ -188,6 +204,6 @@ function refresh_retry(array $params): void
         ]));
         break;
     default:
-        throw new InvalidArgumentException('Invalid action: ' . $params['action']);
+        throw new InvalidArgumentException("Invalid action: $action");
     }
 }

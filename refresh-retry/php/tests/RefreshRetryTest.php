@@ -6,6 +6,14 @@ use PHPUnit\Framework\TestCase;
 
 final class RefreshRetryTest extends TestCase
 {
+    #[Test] // Should throw "Invalid parameters: ..."
+    public function should_throw___invalid_parameters(): void
+    {
+        $this->assetThrows('/^Invalid parameters: \w+$/', function () {
+            refresh_retry(['foo' => null]);
+        });
+    }
+
     #[Test] // action: Should throw "Invalid action: ..."
     public function should_throw___invalid_action(): void
     {
