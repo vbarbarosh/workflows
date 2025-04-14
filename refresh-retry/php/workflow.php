@@ -39,6 +39,9 @@ class RefreshAttempt
  *   - $retry_intervals | List of backoff retry delays. | An array (or null) of DateInterval expressions (empty for immediate retry).
  *   - $action | One of: start, success, failure.
  *   - $fn | A function to save refresh_at, deadline_at, and attempt_no | A Callable which the following signature: function (RefreshAttempt $attempt) { ... }
+ *
+ * @author Vladimir Barbaros (vladimir.barbarosh@gmail.com)
+ * @link https://github.com/vbarbarosh/workflows/tree/main/refresh-retry
  */
 function refresh_retry(array $params): void
 {
