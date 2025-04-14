@@ -3,6 +3,10 @@
 use Carbon\Carbon;
 use RRule\RRule;
 
+const REFRESH_RETRY_START = 'start';
+const REFRESH_RETRY_SUCCESS = 'success';
+const REFRESH_RETRY_FAILURE = 'failure';
+
 class RefreshAttempt
 {
     public ?Carbon $refresh_at;
@@ -105,7 +109,7 @@ function refresh_retry(array $params): void
     $error_details = null;
     try {
         $action = $params['action'] ?? null;
-        if (!in_array($action, ['start', 'success', 'failure'])) {
+        if (!in_array($action, [REFRESH_RETRY_START, REFRESH_RETRY_SUCCESS, REFRESH_RETRY_FAILURE])) {
             $error_details = "\n";
         }
     }
@@ -144,7 +148,7 @@ function refresh_retry(array $params): void
     }
 
     switch ($action) {
-    case 'start':
+    case REFRESH_RETRY_START:
         $deadline_at = $now->copy()->add($timeout);
         call_user_func($fn, new RefreshAttempt([
             'refresh_at' => empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1)),
@@ -153,7 +157,7 @@ function refresh_retry(array $params): void
             'final_failure' => false,
         ]));
         break;
-    case 'success':
+    case REFRESH_RETRY_SUCCESS:
         call_user_func($fn, new RefreshAttempt([
             'refresh_at' => empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1)),
             'deadline_at' => null,
@@ -161,7 +165,7 @@ function refresh_retry(array $params): void
             'final_failure' => false,
         ]));
         break;
-    case 'failure':
+    case REFRESH_RETRY_FAILURE:
         if (count($retry_intervals) <= $attempt_no) {
             // Several attempts were made, but all failed
             call_user_func($fn, new RefreshAttempt([

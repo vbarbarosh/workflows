@@ -79,13 +79,13 @@ final class RefreshRetryTest extends TestCase
     {
         $regexp = '/^\$fn Must be a callable/';
         $this->assetThrows($regexp, function () {
-            refresh_retry(['action' => 'start']);
+            refresh_retry(['action' => REFRESH_RETRY_START]);
         });
         $this->assetThrows($regexp, function () {
-            refresh_retry(['action' => 'start', 'fn' => null]);
+            refresh_retry(['action' => REFRESH_RETRY_START, 'fn' => null]);
         });
         $this->assetThrows($regexp, function () {
-            refresh_retry(['action' => 'start', 'fn' => true]);
+            refresh_retry(['action' => REFRESH_RETRY_START, 'fn' => true]);
         });
     }
 
@@ -95,7 +95,7 @@ final class RefreshRetryTest extends TestCase
         $this->assetThrows('/^Invalid parameters: \w+$/', function () {
             refresh_retry([
                 'foo' => null,
-                'action' => 'start',
+                'action' => REFRESH_RETRY_START,
                 'fn' => fn () => 0,
             ]);
         });
@@ -107,7 +107,7 @@ final class RefreshRetryTest extends TestCase
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -118,7 +118,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinutes(5);
         refresh_retry([
             'now' => $now,
-            'action' => 'success',
+            'action' => REFRESH_RETRY_SUCCESS,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
@@ -134,7 +134,7 @@ final class RefreshRetryTest extends TestCase
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -146,7 +146,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 1,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
@@ -163,7 +163,7 @@ final class RefreshRetryTest extends TestCase
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -175,7 +175,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 1,
             'retry_intervals' => [0],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -187,7 +187,7 @@ final class RefreshRetryTest extends TestCase
         ]);
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'attempt_no' => 1,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
@@ -200,7 +200,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'success',
+            'action' => REFRESH_RETRY_SUCCESS,
             'attempt_no' => 2,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
@@ -217,7 +217,7 @@ final class RefreshRetryTest extends TestCase
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -229,7 +229,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 1,
             'retry_intervals' => [0],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -241,7 +241,7 @@ final class RefreshRetryTest extends TestCase
         ]);
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'attempt_no' => 1,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
@@ -254,7 +254,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 2,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
@@ -271,7 +271,7 @@ final class RefreshRetryTest extends TestCase
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -283,7 +283,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 1,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -296,7 +296,7 @@ final class RefreshRetryTest extends TestCase
         // The first retry is immediate
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'attempt_no' => 1,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -310,7 +310,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 2,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -324,7 +324,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinutes(5);
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'attempt_no' => 2,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -338,7 +338,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 3,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -352,7 +352,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinutes(15);
         refresh_retry([
             'now' => $now,
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'attempt_no' => 3,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -366,7 +366,7 @@ final class RefreshRetryTest extends TestCase
         $now->addMinute();
         refresh_retry([
             'now' => $now,
-            'action' => 'failure',
+            'action' => REFRESH_RETRY_FAILURE,
             'attempt_no' => 4,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
@@ -385,7 +385,7 @@ final class RefreshRetryTest extends TestCase
         refresh_retry([
             'now' => $now,
             'rrule' => "DTSTART:20250101T000000Z\nRRULE:FREQ=HOURLY;INTERVAL=2",
-            'action' => 'start',
+            'action' => REFRESH_RETRY_START,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertSame($now->copy()->startOfHour()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -397,7 +397,7 @@ final class RefreshRetryTest extends TestCase
         refresh_retry([
             'now' => $now,
             'rrule' => "DTSTART:20250101T000000Z\nRRULE:FREQ=HOURLY;INTERVAL=2",
-            'action' => 'success',
+            'action' => REFRESH_RETRY_SUCCESS,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertSame($now->copy()->startOfHour()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
