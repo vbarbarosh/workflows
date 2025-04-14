@@ -72,13 +72,13 @@ function refresh_retry(array $params): void
         }
         // Schedule a retry
         if (empty($retry_delay[$attempt_no])) {
-            // When no delay - reuse $now
+            // When there is no delay, reuse $now
             $retry_start_at = $now;
         }
         else {
             $delay = new DateInterval($retry_delay[$attempt_no]);
             if ($delay->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
-                // When no delay - reuse $now
+                // When there is no delay, reuse $now
                 $retry_start_at = $now;
             }
             else {
