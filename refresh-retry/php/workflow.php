@@ -34,7 +34,21 @@ class RefreshAttempt
 function refresh_retry(array $params): void
 {
     $now = $params['now'] ?? Carbon::now();
-    $rrule = empty($params['rrule']) ? null : RRule::createFromRfcString($params['rrule']); // "DTSTART:20250101T000000\nRRULE:FREQ=HOURLY;INTERVAL=2"
+
+    $error_details = null;
+    try {
+        $rrule = null;
+        if (isset($params['rrule'])) {
+            // DTSTART:20250101T000000\nRRULE:FREQ=HOURLY;INTERVAL=2
+            $rrule = RRule::createFromRfcString($params['rrule']);
+        }
+    }
+    catch (Throwable $exception) {
+        $error_details = get_class($exception) . "\n" . $exception->getMessage();
+    }
+    if ($error_details) {
+        throw new InvalidArgumentException(trim("\$rrule must be a valid RRULE expression or null\n\n$error_details"));
+    }
 
     $error_details = null;
     try {
