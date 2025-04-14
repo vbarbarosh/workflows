@@ -36,7 +36,7 @@ class RefreshAttempt
  *   - $rrule | An RRULE expression representing refresh periodicity. | Valid RRULE expression or null if no recurring refresh is needed.
  *   - $timeout | Expected time to complete the refresh process. | A valid, non-inverted, non-zero DateInterval expression (or null for the default 10-minute timeout).
  *   - $attempt_no | Current attempt number. | Non-negative integer.
- *   - $retry_delays List of backoff retry delays. | An array of non-inverted DateInterval values (or empty values for immediate retry).
+ *   - $retry_intervals | List of backoff retry delays. | An array (or null) of DateInterval expressions (empty for immediate retry).
  */
 function refresh_retry(array $params): void
 {
@@ -85,8 +85,17 @@ function refresh_retry(array $params): void
         throw new InvalidArgumentException("\$attempt_no must be a non-negative integer: $attempt_no");
     }
 
-    $retry_delay = $params['retry_delay'] ?? []; // [null, 'PT0M', 'PT1M', 'PT5M', 'PT15M', 'PT30M', 'PT1H']
-    array_unshift($retry_delay, null);
+    $error_details = null;
+    try {
+        $retry_intervals = $params['retry_intervals'] ?? []; // [null, 'PT0M', 'PT1M', 'PT5M', 'PT15M', 'PT30M', 'PT1H']
+        array_unshift($retry_intervals, null);
+    }
+    catch (Throwable $exception) {
+        $error_details = get_class($exception) . "\n" . $exception->getMessage();
+    }
+    if ($error_details) {
+        throw new InvalidArgumentException(trim("\$retry_intervals Must be an array (or null) of DateInterval expressions (empty values for immediate retry)\n\n$error_details"));
+    }
 
     switch ($params['action']) {
     case 'start':
@@ -107,7 +116,7 @@ function refresh_retry(array $params): void
         ]));
         break;
     case 'failure':
-        if (count($retry_delay) <= $attempt_no) {
+        if (count($retry_intervals) <= $attempt_no) {
             // Several attempts were made, but all failed
             call_user_func($params['fn'], new RefreshAttempt([
                 'refresh_at' => null,
@@ -118,12 +127,12 @@ function refresh_retry(array $params): void
             break;
         }
         // Schedule a retry
-        if (empty($retry_delay[$attempt_no])) {
+        if (empty($retry_intervals[$attempt_no])) {
             // When there is no delay, reuse $now
             $retry_start_at = $now;
         }
         else {
-            $delay = new DateInterval($retry_delay[$attempt_no]);
+            $delay = new DateInterval($retry_intervals[$attempt_no]);
             if ($delay->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
                 // When there is no delay, reuse $now
                 $retry_start_at = $now;

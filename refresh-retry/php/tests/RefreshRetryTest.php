@@ -58,6 +58,15 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
+    #[Test] // retry_intervals: Should throw "$retry_intervals Must be an array (or null) of DateInterval expressions (empty values for immediate retry)"
+    public function should_throw___retry_intervals_must_be_an_array_of_DateInterval_expressions(): void
+    {
+        $regexp = '/\$retry_intervals Must be an array \(or null\) of DateInterval expressions \(empty values for immediate retry\)/';
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['retry_intervals' => 1]);
+        });
+    }
+
     #[Test] // Basic • start → success
     public function basic___start_success(): void
     {
@@ -134,7 +143,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'failure',
             'attempt_no' => 1,
-            'retry_delay' => [0],
+            'retry_intervals' => [0],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertSame($now, $attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
@@ -188,7 +197,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'failure',
             'attempt_no' => 1,
-            'retry_delay' => [0],
+            'retry_intervals' => [0],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertSame($now, $attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
@@ -242,7 +251,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'failure',
             'attempt_no' => 1,
-            'retry_delay' => [0, 'PT5M', 'PT15M'],
+            'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertSame($now->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
@@ -255,7 +264,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'start',
             'attempt_no' => 1,
-            'retry_delay' => [0, 'PT5M', 'PT15M'],
+            'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -269,7 +278,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'failure',
             'attempt_no' => 2,
-            'retry_delay' => [0, 'PT5M', 'PT15M'],
+            'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertSame($now->copy()->addMinutes(5)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
@@ -283,7 +292,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'start',
             'attempt_no' => 2,
-            'retry_delay' => [0, 'PT5M', 'PT15M'],
+            'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -297,7 +306,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'failure',
             'attempt_no' => 3,
-            'retry_delay' => [0, 'PT5M', 'PT15M'],
+            'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertSame($now->copy()->addMinutes(15)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
@@ -311,7 +320,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'start',
             'attempt_no' => 3,
-            'retry_delay' => [0, 'PT5M', 'PT15M'],
+            'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -325,7 +334,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => 'failure',
             'attempt_no' => 4,
-            'retry_delay' => [0, 'PT5M', 'PT15M'],
+            'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
