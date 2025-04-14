@@ -2,5 +2,13 @@
     "require": {
         "rlanvin/php-rrule": "^2.5",
         "nesbot/carbon": "^2.73"
+    },
+    "autoload": {
+        "files": [
+            "workflow.php"
+        ]
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.1"
     }
 }
