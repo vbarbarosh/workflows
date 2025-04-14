@@ -30,6 +30,13 @@ class RefreshAttempt
  * Transitions diagram:
  *   start → success|failure,
  *   failure → success|final_failure
+ *
+ * Parameters:
+ *   - $now | Current time. | Instance of Carbon (or null for the current time).
+ *   - $rrule | An RRULE expression representing refresh periodicity. | Valid RRULE expression or null if no recurring refresh is needed.
+ *   - $timeout | Expected time to complete the refresh process. | A valid, non-inverted, non-zero DateInterval expression (or null for the default 10-minute timeout).
+ *   - $attempt_no | Current attempt number. | Non-negative integer.
+ *   - $retry_delays List of backoff retry delays. | An array of non-inverted DateInterval values (or empty values for immediate retry).
  */
 function refresh_retry(array $params): void
 {
@@ -47,7 +54,7 @@ function refresh_retry(array $params): void
         $error_details = get_class($exception) . "\n" . $exception->getMessage();
     }
     if ($error_details) {
-        throw new InvalidArgumentException(trim("\$rrule must be a valid RRULE expression or null\n\n$error_details"));
+        throw new InvalidArgumentException(trim("\$rrule must be a valid RRULE expression (or null)\n\n$error_details"));
     }
 
     $error_details = null;
