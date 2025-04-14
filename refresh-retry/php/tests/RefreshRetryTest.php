@@ -10,7 +10,7 @@ final class RefreshRetryTest extends TestCase
     public function should_throw___invalid_parameters(): void
     {
         $this->assetThrows('/^Invalid parameters: \w+$/', function () {
-            refresh_retry(['foo' => null]);
+            refresh_retry(['foo' => null, 'fn' => fn () => 0]);
         });
     }
 
@@ -18,7 +18,7 @@ final class RefreshRetryTest extends TestCase
     public function should_throw___invalid_action(): void
     {
         $this->assetThrows('/^Invalid action: \w+$/', function () {
-            refresh_retry(['action' => 'foo']);
+            refresh_retry(['action' => 'foo', 'fn' => fn () => 0]);
         });
     }
 
@@ -27,10 +27,10 @@ final class RefreshRetryTest extends TestCase
     {
         $regexp = '/^\$rrule must be a valid RRULE expression \(or null\)/';
         $this->assetThrows($regexp, function () {
-            refresh_retry(['rrule' => '']);
+            refresh_retry(['rrule' => '', 'fn' => fn () => 0]);
         });
         $this->assetThrows($regexp, function () {
-            refresh_retry(['rrule' => 'RRULE:foo']);
+            refresh_retry(['rrule' => 'RRULE:foo', 'fn' => fn () => 0]);
         });
     }
 
@@ -39,18 +39,18 @@ final class RefreshRetryTest extends TestCase
     {
         $regexp = '/^\$timeout must be a valid DateInterval expression \(or instance\) with an interval greater than zero/';
         $this->assetThrows($regexp, function () {
-            refresh_retry(['timeout' => 0]);
+            refresh_retry(['timeout' => 0, 'fn' => fn () => 0]);
         });
         $this->assetThrows($regexp, function () {
-            refresh_retry(['timeout' => 'P0M']);
+            refresh_retry(['timeout' => 'P0M', 'fn' => fn () => 0]);
         });
         $this->assetThrows($regexp, function () {
-            refresh_retry(['timeout' => new DateInterval('P0M')]);
+            refresh_retry(['timeout' => new DateInterval('P0M'), 'fn' => fn () => 0]);
         });
         $this->assetThrows($regexp, function () {
             $timeout = new DateInterval('PT1M');
             $timeout->invert = true;
-            refresh_retry(['timeout' => $timeout]);
+            refresh_retry(['timeout' => $timeout, 'fn' => fn () => 0]);
         });
     }
 
@@ -59,10 +59,10 @@ final class RefreshRetryTest extends TestCase
     {
         $regexp = '/^\$attempt_no must be a non-negative integer:.+$/';
         $this->assetThrows($regexp, function () {
-            refresh_retry(['attempt_no' => -1]);
+            refresh_retry(['attempt_no' => -1, 'fn' => fn () => 0]);
         });
         $this->assetThrows($regexp, function () {
-            refresh_retry(['attempt_no' => '']);
+            refresh_retry(['attempt_no' => '', 'fn' => fn () => 0]);
         });
     }
 
@@ -71,7 +71,22 @@ final class RefreshRetryTest extends TestCase
     {
         $regexp = '/\$retry_intervals Must be an array \(or null\) of DateInterval expressions \(empty values for immediate retry\)/';
         $this->assetThrows($regexp, function () {
-            refresh_retry(['retry_intervals' => 1]);
+            refresh_retry(['retry_intervals' => 1, 'fn' => fn () => 0]);
+        });
+    }
+
+    #[Test] // fn: Should throw "$fn Must be a callable"
+    public function should_throw___fn_must_be_a_callable(): void
+    {
+        $regexp = '/^\$fn Must be a callable/';
+        $this->assetThrows($regexp, function () {
+            refresh_retry([]);
+        });
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['fn' => null]);
+        });
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['fn' => true]);
         });
     }
 

@@ -98,7 +98,20 @@ function refresh_retry(array $params): void
     }
 
     $action = $params['action'] ?? null;
-    $fn = $params['fn'] ?? null;
+
+    $error_details = null;
+    try {
+        $fn = $params['fn'] ?? null;
+        if (!is_callable($fn)) {
+            $error_details = 'Not a callable';
+        }
+    }
+    catch (Throwable $exception) {
+        $error_details = get_class($exception) . "\n" . $exception->getMessage();
+    }
+    if ($error_details) {
+        throw new InvalidArgumentException(trim("\$fn Must be a callable\n\n$error_details"));
+    }
 
     unset($params['now']);
     unset($params['rrule']);
