@@ -17,7 +17,7 @@ final class RefreshRetryTest extends TestCase
     #[Test] // rrule: Should throw "$rrule must be a valid RRULE expression or null"
     public function should_throw___rrule_must_be_a_valid_rrule_expression_or_null(): void
     {
-        $regexp = '/^\$rrule must be a valid RRULE expression or null/';
+        $regexp = '/^\$rrule must be a valid RRULE expression \(or null\)/';
         $this->assetThrows($regexp, function () {
             refresh_retry(['rrule' => '']);
         });
