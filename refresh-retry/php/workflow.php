@@ -71,8 +71,20 @@ function refresh_retry(array $params): void
             break;
         }
         // Schedule a retry
-        $delay = new DateInterval($retry_delay[$attempt_no]);
-        $retry_start_at = $now->copy()->add($delay);
+        if (empty($retry_delay[$attempt_no])) {
+            // When no delay - reuse $now
+            $retry_start_at = $now;
+        }
+        else {
+            $delay = new DateInterval($retry_delay[$attempt_no]);
+            if ($delay->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
+                // When no delay - reuse $now
+                $retry_start_at = $now;
+            }
+            else {
+                $retry_start_at = $now->copy()->add($delay);
+            }
+        }
         $deadline_at = $retry_start_at->copy()->add($timeout);
         $planned_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
         if (!$planned_refresh_at) {
