@@ -32,7 +32,7 @@ class RefreshAttempt
  *   failure → success|final_failure
  *
  * Parameters:
- *   - $now | Current time. | Instance of Carbon (or null for the current time).
+ *   - $now | A reference time to calculate the next refresh and deadline periods. | Instance of Carbon (or null to use the current time).
  *   - $rrule | An RRULE expression representing refresh periodicity. | Valid RRULE expression or null if no recurring refresh is needed.
  *   - $timeout | Expected time to complete the refresh process. | A valid, non-inverted, non-zero DateInterval expression (or null for the default 10-minute timeout).
  *   - $attempt_no | Current attempt number. | Non-negative integer.
