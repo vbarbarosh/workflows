@@ -35,10 +35,36 @@ function refresh_retry(array $params): void
 {
     $now = $params['now'] ?? Carbon::now();
     $rrule = empty($params['rrule']) ? null : RRule::createFromRfcString($params['rrule']); // "DTSTART:20250101T000000\nRRULE:FREQ=HOURLY;INTERVAL=2"
-    $timeout = new DateInterval($params['timeout'] ?? 'PT10M'); // PT30M
-    $retry_delay = $params['retry_delay'] ?? []; // [null, 'PT0M', 'PT1M', 'PT5M', 'PT15M', 'PT30M', 'PT1H']
-    $attempt_no = $params['attempt_no'] ?? 0;
 
+    $error_details = null;
+    try {
+        if (!isset($params['timeout'])) {
+            // Default timeout is 10 minutes.
+            $timeout = new DateInterval('PT10M');
+        }
+        else if ($params['timeout'] instanceof DateInterval) {
+            $timeout = $params['timeout'];
+        }
+        else {
+            $timeout = new DateInterval($params['timeout']);
+        }
+        if ($timeout->invert || $timeout->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
+            $error_details = "\n";
+        }
+    }
+    catch (Throwable $exception) {
+        $error_details = get_class($exception) . "\n" . $exception->getMessage();
+    }
+    if ($error_details) {
+        throw new InvalidArgumentException(trim("\$timeout must be a valid DateInterval expression (or instance) with an interval greater than zero\n\n$error_details"));
+    }
+
+    $attempt_no = $params['attempt_no'] ?? 0;
+    if (!is_integer($attempt_no) || $attempt_no < 0) {
+        throw new InvalidArgumentException("\$attempt_no must be a non-negative integer: $attempt_no");
+    }
+
+    $retry_delay = $params['retry_delay'] ?? []; // [null, 'PT0M', 'PT1M', 'PT5M', 'PT15M', 'PT30M', 'PT1H']
     array_unshift($retry_delay, null);
 
     switch ($params['action']) {
@@ -132,6 +158,6 @@ function refresh_retry(array $params): void
         ]));
         break;
     default:
-        throw new Exception('Invalid action: ' . $params['action']);
+        throw new InvalidArgumentException('Invalid action: ' . $params['action']);
     }
 }
