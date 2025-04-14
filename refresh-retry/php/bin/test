@@ -10,4 +10,4 @@ scriptname=`basename $script`
 
 cd $scriptdir/..
 
-vendor/bin/phpunit --colors=auto --testdox tests
+vendor/bin/phpunit --colors=auto --display-warnings --testdox tests
