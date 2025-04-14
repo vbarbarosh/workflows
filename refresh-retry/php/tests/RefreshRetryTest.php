@@ -102,7 +102,7 @@ final class RefreshRetryTest extends TestCase
     }
 
     #[Test] // Non-recurring • start → success
-    public function none_recurring___start_success(): void
+    public function non_recurring___start_success(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -374,6 +374,35 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(4, $attempt->attempt_no);
                 $this->assertTrue($attempt->final_failure);
+            },
+        ]);
+    }
+
+    #[Test] // Recurring • start → success → start
+    public function recurring___start_success_start(): void
+    {
+        $now = Carbon::parse('2025/01/01');
+        refresh_retry([
+            'now' => $now,
+            'rrule' => "DTSTART:20250101T000000Z\nRRULE:FREQ=HOURLY;INTERVAL=2",
+            'action' => 'start',
+            'fn' => function (RefreshAttempt $attempt) use ($now) {
+                $this->assertSame($now->copy()->startOfHour()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
+                $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
+                $this->assertSame(1, $attempt->attempt_no);
+                $this->assertFalse($attempt->final_failure);
+            },
+        ]);
+        $now->addMinutes(5);
+        refresh_retry([
+            'now' => $now,
+            'rrule' => "DTSTART:20250101T000000Z\nRRULE:FREQ=HOURLY;INTERVAL=2",
+            'action' => 'success',
+            'fn' => function (RefreshAttempt $attempt) use ($now) {
+                $this->assertSame($now->copy()->startOfHour()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
+                $this->assertNull($attempt->deadline_at);
+                $this->assertSame(0, $attempt->attempt_no);
+                $this->assertFalse($attempt->final_failure);
             },
         ]);
     }
