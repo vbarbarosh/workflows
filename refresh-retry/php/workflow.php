@@ -97,7 +97,19 @@ function refresh_retry(array $params): void
         throw new InvalidArgumentException(trim("\$retry_intervals Must be an array (or null) of DateInterval expressions (empty values for immediate retry)\n\n$error_details"));
     }
 
-    $action = $params['action'] ?? null;
+    $error_details = null;
+    try {
+        $action = $params['action'] ?? null;
+        if (!in_array($action, ['start', 'success', 'failure'])) {
+            $error_details = "\n";
+        }
+    }
+    catch (Throwable $exception) {
+        $error_details = get_class($exception) . "\n" . $exception->getMessage();
+    }
+    if ($error_details) {
+        throw new InvalidArgumentException(trim("\$action Must be one of: start, success, failure\n\n$error_details"));
+    }
 
     $error_details = null;
     try {
@@ -217,6 +229,6 @@ function refresh_retry(array $params): void
         ]));
         break;
     default:
-        throw new InvalidArgumentException("Invalid action: $action");
+        throw new DomainException("Invalid action: $action");
     }
 }
