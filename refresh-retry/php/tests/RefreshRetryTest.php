@@ -6,6 +6,46 @@ use PHPUnit\Framework\TestCase;
 
 final class RefreshRetryTest extends TestCase
 {
+    #[Test] // action: Should throw "Invalid action: ..."
+    public function should_throw___invalid_action(): void
+    {
+        $this->assetThrows('/^Invalid action: \w+$/', function () {
+            refresh_retry(['action' => 'foo']);
+        });
+    }
+
+    #[Test] // attempt_no: Should throw "$attempt_no must be a non-negative integer: ..."
+    public function should_throw___attempt_no_must_be_a_non_negative_integer(): void
+    {
+        $regexp = '/^\$attempt_no must be a non-negative integer:.+$/';
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['attempt_no' => -1]);
+        });
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['attempt_no' => '']);
+        });
+    }
+
+    #[Test] // timeout: Should throw "$timeout must be a valid DateInterval expression (or instance) with an interval greater than zero"
+    public function should_throw___timeout_must_be_a_valid_DateInterval_expression_or_instance_with_an_interval_greater_than_zero(): void
+    {
+        $regexp = '/^\$timeout must be a valid DateInterval expression \(or instance\) with an interval greater than zero/';
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['timeout' => 0]);
+        });
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['timeout' => 'P0M']);
+        });
+        $this->assetThrows($regexp, function () {
+            refresh_retry(['timeout' => new DateInterval('P0M')]);
+        });
+        $this->assetThrows($regexp, function () {
+            $timeout = new DateInterval('PT1M');
+            $timeout->invert = true;
+            refresh_retry(['timeout' => $timeout]);
+        });
+    }
+
     #[Test] // Basic • start → success
     public function basic___start_success(): void
     {
@@ -281,5 +321,16 @@ final class RefreshRetryTest extends TestCase
                 $this->assertTrue($attempt->final_failure);
             },
         ]);
+    }
+
+    private function assetThrows(string $regex, callable $fn): void
+    {
+        try {
+            call_user_func($fn);
+            $this->assertFalse("An exception matching >>$regex<< is expected");
+        }
+        catch (Throwable $exception) {
+            $this->assertMatchesRegularExpression($regex, $exception->getMessage());
+        }
     }
 }
