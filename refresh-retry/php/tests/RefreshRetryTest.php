@@ -101,8 +101,8 @@ final class RefreshRetryTest extends TestCase
         });
     }
 
-    #[Test] // Basic • start → success
-    public function basic___start_success(): void
+    #[Test] // Non-recurring • start → success
+    public function none_recurring___start_success(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -128,8 +128,8 @@ final class RefreshRetryTest extends TestCase
         ]);
     }
 
-    #[Test] // Basic • start → final_failure
-    public function basic___start_final_failure(): void
+    #[Test] // Non-recurring • start → final_failure
+    public function non_recurring___start_final_failure(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -157,8 +157,8 @@ final class RefreshRetryTest extends TestCase
         ]);
     }
 
-    #[Test] // Basic • start → failure[1] → start → success
-    public function basic___start_failure1_start_success(): void
+    #[Test] // Non-recurring • start → failure[1] → start → success
+    public function non_recurring___start_failure1_start_success(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -211,8 +211,8 @@ final class RefreshRetryTest extends TestCase
         ]);
     }
 
-    #[Test] // Basic • start → failure[1] → start → final failure
-    public function basic___start_failure1_start_final_failure(): void
+    #[Test] // Non-recurring • start → failure[1] → start → final failure
+    public function non_recurring___start_failure1_start_final_failure(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -265,8 +265,8 @@ final class RefreshRetryTest extends TestCase
         ]);
     }
 
-    #[Test] // Basic • start → failure[1] → start → failure[2] → start → failure[3] → start → final_failure
-    public function basic___start_failure1_start_failure2_start_failure3_start_final_failure(): void
+    #[Test] // Non-recurring • start → failure[1] → start → failure[2] → start → failure[3] → start → final_failure
+    public function non_recurring___start_failure1_start_failure2_start_failure3_start_final_failure(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
