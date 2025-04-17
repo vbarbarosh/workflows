@@ -30,7 +30,7 @@ And here is an overview of how this approach works:
   - 📅 calculate refresh **deadline** time
   - 🗓 calculate **next refresh** after deadline
   - ➕ increase `attempt_no`
-- 🎉 success — refresh finished successfully and on time, no retry needed:
+- ✅ success — refresh finished successfully and on time, no retry needed:
   - 🗓 calculate next refresh time
   - 🧹 reset deadline time
   - 🧹 reset `attempt_no`
@@ -41,11 +41,13 @@ And here is an overview of how this approach works:
   - 🧹 reset next refresh time
   - 🧹 reset deadline time
 
+### Some common refresh and retry flows:
+
 ```mermaid
 ---
 xdisplayMode: compact
-config:
-  theme: neo-dark
+xconfig:
+  xtheme: neo-dark
 ---
 gantt
     title start → success
@@ -57,11 +59,13 @@ gantt
     ✅ Success : milestone, 08:01, 2m
 ```
 
+Usually, after the first failure, a retry is issued immediately:
+
 ```mermaid
 ---
 xdisplayMode: compact
-config:
-  theme: neo-dark
+xconfig:
+  xtheme: neo-dark
 ---
 gantt
     title start → retry → success
@@ -75,11 +79,13 @@ gantt
     ✅ Success : milestone, m3, 08:05, 2m
 ```
 
+The second retry, however, is usually scheduled after a short delay:
+
 ```mermaid
 ---
 xdisplayMode: compact
-config:
-  theme: neo-dark
+xconfig:
+  xtheme: neo-dark
 ---
 gantt
     title start → retry → retry → success
@@ -94,6 +100,8 @@ gantt
     🔄 Retry 2 : retry2, 08:15, 2m
     ✅ Success : milestone, m4, 08:15, 4m
 ```
+
+### How it can be expressed in code:
 
 ```php
 refresh_retry([
