@@ -51,7 +51,7 @@ xconfig:
 ---
 gantt
     title start → success
-    dateFormat  HH:mm
+    dateFormat HH:mm
     axisFormat %H:%M
 
     🚀 Start: milestone, 08:00,
@@ -72,11 +72,11 @@ gantt
     dateFormat HH:mm
     axisFormat %H:%M
 
-    🚀 Start : milestone, m1, 08:00, 0m
+    🚀 Start : milestone, 08:00, 0m
     ⚙️ Refresh : a1, 08:00, 5m
-    ❌ Failed : milestone, m2, 08:04, 2m
+    ❌ Failure : milestone, 08:04, 2m
     🔄 Retry : a2, 08:05, 1m
-    ✅ Success : milestone, m3, 08:05, 2m
+    ✅ Success : milestone, 08:05, 2m
 ```
 
 The second retry, however, is usually scheduled after a short delay:
