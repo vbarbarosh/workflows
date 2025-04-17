@@ -41,6 +41,60 @@ And here is an overview of how this approach works:
   - 🧹 reset next refresh time
   - 🧹 reset deadline time
 
+```mermaid
+---
+xdisplayMode: compact
+config:
+  theme: neo-dark
+---
+gantt
+    title start → success
+    dateFormat  HH:mm
+    axisFormat %H:%M
+
+    🚀 Start: milestone, 08:00,
+    ⚙️ Refresh         :a1, 08:00, 2m
+    ✅ Success : milestone, 08:01, 2m
+```
+
+```mermaid
+---
+xdisplayMode: compact
+config:
+  theme: neo-dark
+---
+gantt
+    title start → retry → success
+    dateFormat HH:mm
+    axisFormat %H:%M
+
+    🚀 Start : milestone, m1, 08:00, 0m
+    ⚙️ Refresh : a1, 08:00, 5m
+    ❌ Failed : milestone, m2, 08:04, 2m
+    🔄 Retry : a2, 08:05, 1m
+    ✅ Success : milestone, m3, 08:05, 2m
+```
+
+```mermaid
+---
+xdisplayMode: compact
+config:
+  theme: neo-dark
+---
+gantt
+    title start → retry → retry → success
+    dateFormat HH:mm
+    axisFormat %H:%M
+
+    🚀 Start: milestone, m1, 08:00, 0m
+    ⚙️ Refresh : a1, 08:00, 5m
+    ❌ Failure 1: milestone, m2, 08:04, 2m
+    🔄 Retry 1 : retry1, 08:05, 5m
+    ❌ Failure 2: milestone, m3, 08:09, 2m
+    🔄 Retry 2 : retry2, 08:15, 2m
+    ✅ Success : milestone, m4, 08:15, 4m
+```
+
 ```php
 refresh_retry([
     'rrule' => 'RRULE:FREQ=HOURLY;INTERVAL=2',
@@ -68,6 +122,34 @@ refresh_retry([
         - Panic
     ',
 ]);
+```
+
+```php
+public function refresh_retry(string $action): void
+{
+    refresh_retry([
+        'rrule' => $this->refresh_rrule,
+        'timeout' => 'PT1H',
+        'attempt_no' => $this->refresh_attempt,
+        'retry_intervals' => [0, 'PT5M', 'PT10M', 'PT15M', 'PT30M', 'PT1H'],
+        'action' => $action,
+        'fn' => function (RefreshAttempt $attempt) use ($action) {
+            Log::info(sprintf('[big_table_refresh_retry] %s | %s | %s', $action, $this->pub_id, json_encode($attempt)));
+            $this->refresh_at = $attempt->refresh_at;
+            $this->deadline_at = $attempt->deadline_at;
+            $this->refresh_attempt = $attempt->attempt_no;
+            if ($attempt->final_failure) {
+                $this->is_disabled_until_update = true;
+                $this->user_friendly_disabled_message = 'Something is wrong with the provided url. Please replace it and try again.';
+            }
+        },
+    ]);
+    if ($action !== REFRESH_RETRY_START) {
+        $this->save();
+        return;
+    }
+    // [...]
+}
 ```
 
 ## Reasoning
