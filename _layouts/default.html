@@ -28,8 +28,8 @@
 
 <script>
   document.querySelectorAll('.language-mermaid').forEach(function (elem) {
+    elem.parentElement.classList.add('mermaid');
     elem.replaceWith(...elem.childNodes);
-    elem.classList.add('mermaid');
   });
 </script>
 <script type="module">
