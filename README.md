@@ -8,3 +8,7 @@ A collection of workflows with explanations
 <p align="center">
 <img src="img/logo-by-chat-gpt.png" style="max-height:400px;">
 </p>
+
+- [plural](plural/README.md)
+- [poll](poll/README.md)
+- [refresh-retry](refresh-retry/README.md)
