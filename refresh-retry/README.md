@@ -24,22 +24,22 @@ To summarize, this approach will use the following three variables:
 | `deadline_at` | The time when the current refresh should be cancelled due to a timeout.              |
 | `attempt_no`  | Attempt number. Increases with each start and resets only when the refresh succeeds. |
 
-And here is an overview of how this approach works:
+And here is an overview of how it works:
 
-- 🚀 start new refresh:
+- 🚀 start a new refresh:
   - 📅 calculate refresh **deadline** time
-  - 🗓 calculate **next refresh** after deadline
+  - 🗓 calculate **next refresh** immediately after deadline
   - ➕ increase `attempt_no`
 - ✅ success — refresh finished successfully and on time, no retry needed:
   - 🗓 calculate next refresh time
   - 🧹 reset deadline time
   - 🧹 reset `attempt_no`
 - ❌ failure — refresh failed, retry should be performed:
-  - 🗓 calculate next refresh time after immediately after backoff delay
-  - 🧹 reset deadline time
+  - 🗓 calculate **next refresh** immediately after backoff delay
+  - 🧹 reset **deadline** time
 - 💥 final_failure — several attempts were made, but all failed
-  - 🧹 reset next refresh time
-  - 🧹 reset deadline time
+  - 🧹 reset **next refresh** time
+  - 🧹 reset **deadline** time
 
 ### Some common refresh and retry flows:
 
