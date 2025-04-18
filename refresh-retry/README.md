@@ -27,19 +27,19 @@ To summarize, this approach will use the following three variables:
 And here is an overview of how it works:
 
 - 🚀 start a new refresh:
-  - 📅 calculate refresh **deadline** time
-  - 🗓 calculate **next refresh** immediately after deadline
+  - ⏰ calculate `deadline_at`
+  - 🗓 calculate `refresh_at` immediately after deadline
   - ➕ increase `attempt_no`
 - ✅ success — refresh finished successfully and on time, no retry needed:
-  - 🗓 calculate next refresh time
-  - 🧹 reset deadline time
-  - 🧹 reset `attempt_no`
+  - 🗓 calculate `refresh_at` time
+  - 🧹⏰ reset `deadline_at`
+  - 🧹➕ reset `attempt_no`
 - ❌ failure — refresh failed, retry should be performed:
-  - 🗓 calculate **next refresh** immediately after backoff delay
-  - 🧹 reset **deadline** time
+  - 🗓 calculate `refresh_at` immediately after **backoff delay**
+  - 🧹⏰ reset `deadline_at` time
 - 💥 final_failure — several attempts were made, but all failed
-  - 🧹 reset **next refresh** time
-  - 🧹 reset **deadline** time
+  - 🧹 reset `refresh_at` time (no more attempt should be performed)
+  - 🧹⏰ reset `deadline_at` time
 
 ### Some common refresh and retry flows:
 
