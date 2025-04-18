@@ -91,9 +91,9 @@ gantt
     dateFormat HH:mm
     axisFormat %H:%M
 
-    🚀 Start: milestone, 08:00,
-    ⚙️ Refresh         :a1, 08:00, 2m
-    ✅ Success : milestone, 08:01, 2m
+    🚀 Start    : milestone, 08:00, 0m
+    ⚙️ Refresh  :            08:00, 2m
+    ✅ Success   : milestone, 08:01, 2m
 ```
 
 Usually, after the first failure, a retry is issued immediately:
@@ -109,11 +109,11 @@ gantt
     dateFormat HH:mm
     axisFormat %H:%M
 
-    🚀 Start : milestone, 08:00, 0m
-    ⚙️ Refresh : a1, 08:00, 5m
-    ❌ Failure : milestone, 08:04, 2m
-    🔄 Retry : a2, 08:05, 1m
-    ✅ Success : milestone, 08:05, 2m
+    🚀 Start    : milestone, 08:00, 0m
+    ⚙️ Refresh  :            08:00, 5m
+    ❌ Failure   : milestone, 08:04, 2m
+    🔄 Retry    :            08:05, 1m
+    ✅ Success   : milestone, 08:05, 2m
 ```
 
 The second retry, however, is usually scheduled after a short delay:
@@ -129,13 +129,13 @@ gantt
     dateFormat HH:mm
     axisFormat %H:%M
 
-    🚀 Start: milestone, m1, 08:00, 0m
-    ⚙️ Refresh : a1, 08:00, 5m
-    ❌ Failure 1: milestone, m2, 08:04, 2m
-    🔄 Retry 1 : retry1, 08:05, 5m
-    ❌ Failure 2: milestone, m3, 08:09, 2m
-    🔄 Retry 2 : retry2, 08:15, 2m
-    ✅ Success : milestone, m4, 08:15, 4m
+    🚀 Start        : milestone, 08:00, 0m
+    ⚙️ Refresh      :            08:00, 5m
+    ❌ Failure 1     : milestone, 08:04, 2m
+    🔄 Retry 1      :            08:05, 5m
+    ❌ Failure 2     : milestone, 08:09, 2m
+    🔄 Retry 2      :            08:15, 2m
+    ✅ Success       : milestone, 08:15, 4m
 ```
 
 ### How it can be expressed in code:
@@ -270,11 +270,11 @@ gantt
     dateFormat HH:mm
     axisFormat %H:%M
 
-    🚀 Start           : milestone, 08:00, 0m
-    ⚙️ Refresh         : 08:00, 5m
-    ❌ Failure         : milestone, 08:04, 2m
-    🔄 Retry (delayed) : 08:06, 5m
-    ⚙️ Scheduled Refresh : a2, 08:10, 5m
+    🚀 Start                : milestone, 08:00, 0m
+    ⚙️ Refresh              :            08:00, 5m
+    ❌ Failure               : milestone, 08:04, 2m
+    🔄 Retry (delayed)      :            08:06, 5m
+    ⚙️ Scheduled Refresh    :            08:10, 5m
 ```
 
 Refresh should start every day at 2PM. Time limit for a refresh process is 2
