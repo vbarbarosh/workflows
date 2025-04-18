@@ -199,10 +199,10 @@ public function refresh_retry(string $action): void
 
 ## Reasoning
 
-Refreshing is simple. Just add a `refresh_at` column to indicate the time for
+Refreshing is straightforward. Add a `refresh_at` column to indicate the time for
 the next refresh, and you're done.
 
-Retry is necessary between refreshes. If refreshes happen one after another,
+Retry is necessary between refreshes. If refreshes follow one after another,
 there would be no need to retry.
 
 So, retry is a mechanism that executes the refresh again before the next
@@ -210,43 +210,44 @@ planned refresh.
 
 Sometimes a refresh should be stopped completely. For example, if the provided
 `input_url` is no longer accessible. In this case, it's better to stop the
-refresh, until the user updates the model, and display the corresponding
+refresh (until the user updates the model) and display the corresponding
 message: "Provided URL is invalid: https://example.com/broken."
 
 **refresh_at**
-- Next time to start a refresh unconditionally, either due to a retry or a
+- Next time to start a refresh **unconditionally**, either due to a retry or a
   normal refresh time (the decision has already been made, and the result is in
   the `refresh_at` field)
 
 **refresh_attempt_uid**
 - Each refresh process receives a unique token and must stop immediately if the
-  token differs from the one stored in the database.
+  token differs from the one stored in the database (this is a very basic
+  mechanism to cancel currently running refresh process)
 
 **refresh_attempt_at**
-- Last time a refresh was started
+- Last time a refresh was started (to simplify debugging 🪲)
 
 **refresh_attempt_no**
 - Each time a new refresh starts, this variable increases
-- Each time a refresh succeeds, this variable resets to zero
+- Only when a refresh succeeds, this variable resets to zero
 
-**refresh_timeout_at**
-- The time when the current refresh process will fail with a timeout reason.
+**refresh_deadline_at**
+- The time when the current refresh process will fail with a timeout reason
 
 **refresh_disabled_until_update**
 - When not empty, indicates that the refresh was disabled until the next manual
   save
 
 **refresh_disabled_user_friendly_reason**
-- A reason to display to the customer, usually: "Provided URL is invalid:
+- A reason to display to a customer, usually: "Provided URL is invalid:
   https://example.com/broken"
 
 ## When to calculate `refresh_at`
 
-1. When new refresh process starts.
+1. When the new refresh process starts
     - This time, the next `refresh_at` must be calculated by considering the
       timeout. It should start no earlier than the current time plus the
       timeout.
-2. When refresh process succeeds.
+2. When a refresh process succeeds
     - In the previous step (1), the next `refresh_at` was calculated with the
       timeout. However, the refresh process might succeed much earlier. In this
       case, the next `refresh_at` must be updated to the closest possible next
@@ -255,7 +256,7 @@ message: "Provided URL is invalid: https://example.com/broken."
       refresh interval is 30 minutes. In this scenario, the next `refresh_at`
       should be updated to the nearest 30-minute interval after the process
       completes, ignoring the 1-hour timeout delay.
-3. When the refresh process fails.
+3. When the refresh process fails
     - In this case, the next `refresh_at` should be calculated using
       `refresh_attempt_no` and the planned `refresh_at`, with preference given
       depending on the retry policy (i.e., whether it is necessary to keep the
@@ -263,18 +264,49 @@ message: "Provided URL is invalid: https://example.com/broken."
 
 ## Edge case: Retry overlaps with refresh
 
+```mermaid
+gantt
+    title Edge case: Retry overlaps with refresh
+    dateFormat HH:mm
+    axisFormat %H:%M
+
+    🚀 Start           : milestone, 08:00, 0m
+    ⚙️ Refresh         : 08:00, 5m
+    ❌ Failure         : milestone, 08:04, 2m
+    🔄 Retry (delayed) : 08:06, 5m
+    ⚙️ Scheduled Refresh : a2, 08:10, 5m
+```
+
 Refresh should start every day at 2PM. Time limit for a refresh process is 2
 hours. Due to errors and retry policy, next refresh should start at 1:30PM.
 Should it be started? Or, instead, next refresh should be scheduled 30 minutes
 ahead, at 2PM, and treated as retry refresh? In other words, is it important to
-keep refresh aligned with original timing?
+keep refresh aligned with the original timing?
 
-[x] Start refresh every day at specific time. Ignore retries which overlaps
-with original timing.
+There could be an option in the UI:
 
-## Edge case: Refresh overlaps with the following refresh
+✅ Start refresh every day at a specific time (ignore retries that overlap
+with the original timing)
 
-Refresh configured to run every 30 minutes, but timeout is set to 1 hour.
+## Edge case: Refresh overlaps with each other
+
+```mermaid
+gantt
+    title Edge case: Refresh overlaps with each other
+    dateFormat HH:mm
+    axisFormat %H:%M
+
+    ⚙️ Refresh: 08:00, 1h
+    ⚙️ Refresh: 08:30, 1h
+    ⚙️ Refresh: 09:00, 1h
+    ⚙️ Refresh: 09:30, 1h
+    ⚙️ Refresh: 10:00, 1h
+    ⚙️ Refresh: 10:30, 1h
+    ⚙️ Refresh: 11:00, 1h
+    ⚙️ Refresh: 11:30, 1h
+```
+
+Refresh is configured to run every 30 minutes, but the timeout is set to 1 hour.
 
 ## Implementation
 
