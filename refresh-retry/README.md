@@ -10,13 +10,13 @@ implement refresh with backoff retry:
   and resets only on successful completion.
 
 These two variables are the bare minimum. When the refresh mechanism has
-built-in timeout support, they are sufficient. However, to simplify the
+built-in timeout support, they are enough. However, to simplify the
 explanation, one additional variable is used:
 
 - `deadline_at` — the time when a running refresh process should be considered
   stalled and forcefully canceled.
 
-To summarize, the following three variables will be used by this approach:
+To summarize, this approach will use the following three variables:
 
 | Variable      | Description                                                                          |
 |---------------|--------------------------------------------------------------------------------------|
