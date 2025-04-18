@@ -38,8 +38,45 @@ And here is an overview of how it works:
   - 🗓 calculate `refresh_at` immediately after **backoff delay**
   - 🧹⏰ reset `deadline_at` time
 - 💥 final_failure — several attempts were made, but all failed
-  - 🧹 reset `refresh_at` time (no more attempt should be performed)
+  - 🧹🗓 reset `refresh_at` time (no more attempt should be performed)
   - 🧹⏰ reset `deadline_at` time
+
+```mermaid
+---
+config:
+  layout: elk
+  theme: neo-dark
+---
+
+classDiagram
+    direction LR
+
+    class Start["🚀 Start"] {
+        ⏰ calculate deadline_at
+        🗓 calculate refresh_at immediately after deadline
+        ➕ increase attempt_no
+    }
+
+    class Success["✅ Success"] {
+        🗓 calculate refresh_at time
+        🧹⏰ reset deadline_at
+        🧹➕ reset attempt_no
+    }
+
+    class Failure["❌ Failure"] {
+        🗓 calculate refresh_at immediately after backoff delay
+        🧹⏰ reset deadline_at time
+    }
+
+    class FinalFailure["💥 Final Failure"] {
+        🧹🗓 reset refresh_at time
+        🧹⏰ reset deadline_at time
+    }
+
+    Start --> Success
+    Start --> Failure
+    Start --> FinalFailure
+```
 
 ### Some common refresh and retry flows:
 
