@@ -557,3 +557,32 @@ the banner with "thumbnail creation failed".
     - when to retry
     - how many of retries to perform
 - when to give up
+
+```php
+switch ($action) {
+case 'start':
+    if (!$model->refresh_final_failure_at) {
+        $model->refresh_final_failure_at = now()->addWeek();
+    }
+    break;
+case 'success':
+    $model->refresh_final_failure_at = null;
+    break;
+}
+refresh_retry([
+    'rrule' => 'RRULE:FREQ=DAILY;BYHOUR=6,16;BYMINUTE=0;BYSECOND=0',
+    'timeout' => 'PT1H',
+    'attempt_no' => $model->refresh_attempt,
+    'retry_intervals' => ['PT0M', 'PT1M', 'PT5M', 'PT15M', 'PT30M', 'PT1H', 'NEXT'],
+    'final_failure_at' => $model->refresh_final_failure_at,
+    'action' => 'start',
+    'fn' => function (RefreshAttempt $attempt) use ($model) {
+        $model->refresh_at = $attempt->refresh_at;
+        $model->refresh_attempt = $attempt->attempt_no;
+        if ($attempt->final_failure) {
+                $this->is_disabled_until_update = true;
+                $this->user_friendly_disabled_message = 'Something is wrong with the provided url. Please replace it and try again.';
+        }
+    },
+])
+```
