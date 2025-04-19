@@ -308,6 +308,35 @@ gantt
 
 Refresh is configured to run every 30 minutes, but the timeout is set to 1 hour.
 
+## Edge case: Retries without final_failure
+
+```mermaid
+gantt
+    title Edge case: Retries without final_failure
+    dateFormat HH:mm
+    axisFormat %H:%M
+
+    ⚙️ Refresh  :            08:00, 15m
+    ❌ Failure 1 : milestone, 08:15
+    🔄 Retry 1  :            08:15, 15m
+    ❌ Failure 2 : milestone, 08:30
+    🔄 Retry 2  :            08:30, 15m
+    ❌ Failure 3 : milestone, 08:45
+
+    ⚙️ Refresh  :            09:00, 15m
+    ❌ Failure 1 : milestone, 09:15
+    🔄 Retry 1  :            09:15, 15m
+    ❌ Failure 2 : milestone, 09:30
+    🔄 Retry 2  :            09:30, 15m
+    ❌ Failure 3 : milestone, 09:45
+
+    ⚙️ Refresh  :            10:00, 15m
+```
+
+Retries should be performed, but they shouldn't result in `final_failure`.
+After the final retry, `attempt_no` will be reset, and a new regular refresh
+should be scheduled.
+
 ## Implementation
 
 This section provides a demo implementation for **refresh-retry-policy** workflow.
