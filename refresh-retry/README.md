@@ -481,10 +481,10 @@ the banner with "thumbnail creation failed".
 1. Send a request to the thumbnailer service.
 2. Allow 1 minute to complete.
 3. Retry policy:
-   - On the first failure, retry immediately.
-   - On the second failure, retry after 1 minute.
-   - On the third failure, retry after 5 minutes.
-   - On the fourth failure, mark the banner with "thumbnail creation failed."
+    - On the first failure, retry immediately.
+    - On the second failure, retry after 1 minute.
+    - On the third failure, retry after 5 minutes.
+    - On the fourth failure, mark the banner with "thumbnail creation failed."
 4. Give up after the final unsuccessful retry.
 
 ## Real-World Scenarios • Refresh BigTable twice per day at 6 AM and 4 PM
@@ -498,7 +498,7 @@ the banner with "thumbnail creation failed".
    - On the fourth failure, retry after 15 minutes.
    - On the fifth failure, retry after 30 minutes.
    - On the sixth failure, retry after 1 hour.
-4. After the final unsuccessful retry:
+4. Give up after the final unsuccessful retry:
     - Disable auto-refresh.
     - Email the customer that the BigTable refresh has been disabled.
 
@@ -516,7 +516,7 @@ the banner with "thumbnail creation failed".
    - On the seventh failure:
      - Reset `attempt_no`
      - Wait until next scheduled refresh
-4. After one week of unsuccessful refresh attempts:
+4. Give up after one week of unsuccessful refresh attempts:
    - Disable auto-refresh
    - Send the customer an email notifying them that BigTable refresh has been disabled
 
