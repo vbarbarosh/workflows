@@ -580,8 +580,8 @@ refresh_retry([
         $model->refresh_at = $attempt->refresh_at;
         $model->refresh_attempt = $attempt->attempt_no;
         if ($attempt->final_failure) {
-                $this->is_disabled_until_update = true;
-                $this->user_friendly_disabled_message = 'Something is wrong with the provided url. Please replace it and try again.';
+            $this->is_disabled_until_update = true;
+            $this->user_friendly_disabled_message = 'Something is wrong with the provided url. Please replace it and try again.';
         }
     },
 ])
