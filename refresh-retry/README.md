@@ -480,21 +480,51 @@ the banner with "thumbnail creation failed".
 
 1. Send a request to the thumbnailer service.
 2. Allow 1 minute to complete.
-3. On the first failure, retry immediately.
-4. On the second failure, retry after 1 minute.
-5. On the third failure, retry after 5 minutes.
-6. On the fourth failure, mark the banner with "thumbnail creation failed."
+3. Retry policy:
+   - On the first failure, retry immediately.
+   - On the second failure, retry after 1 minute.
+   - On the third failure, retry after 5 minutes.
+   - On the fourth failure, mark the banner with "thumbnail creation failed."
+4. Give up after the final unsuccessful retry.
 
 ## Real-World Scenarios • Refresh BigTable twice per day at 6 AM and 4 PM
 
 1. Refresh BigTable twice per day at 6 AM and 4 PM
 2. Allow 1 hour to complete
-3. On the first failure, retry immediately.
-4. On the second failure, retry after 1 minute.
-5. On the third failure, retry after 5 minutes.
-6. On the fourth failure, retry after 15 minutes.
-7. On the fifth failure, retry after 30 minutes.
-8. On the sixth failure, retry after 1 hour.
-9. On the seventh failure
+3. Retry policy:
+   - On the first failure, retry immediately.
+   - On the second failure, retry after 1 minute.
+   - On the third failure, retry after 5 minutes.
+   - On the fourth failure, retry after 15 minutes.
+   - On the fifth failure, retry after 30 minutes.
+   - On the sixth failure, retry after 1 hour.
+4. After the final unsuccessful retry:
+    - Disable auto-refresh.
+    - Email the customer that the BigTable refresh has been disabled.
+
+## Real-World Scenarios • Refresh BigTable twice per day at 6 AM and 4 PM, do retries, but give up only after a week
+
+1. Refresh BigTable twice per day at 6 AM and 4 PM
+2. Allow 1 hour to complete
+3. Retry policy:
+   - On the first failure, retry immediately.
+   - On the second failure, retry after 1 minute.
+   - On the third failure, retry after 5 minutes.
+   - On the fourth failure, retry after 15 minutes.
+   - On the fifth failure, retry after 30 minutes.
+   - On the sixth failure, retry after 1 hour.
+   - On the seventh failure:
+     - Reset `attempt_no`
+     - Wait until next scheduled refresh
+4. After one week of unsuccessful refresh attempts:
    - Disable auto-refresh
-   - Send the customer an email that BigTable refresh was disabled
+   - Send the customer an email notifying them that BigTable refresh has been disabled
+
+## Key moments
+
+- scheduled refreshes (`rrule`)
+- timeout for 1 refresh to complete
+- retry policy
+    - when to retry
+    - how many of retries to perform
+- when to give up
