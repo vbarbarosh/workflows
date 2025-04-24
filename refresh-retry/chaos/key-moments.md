@@ -7,6 +7,8 @@
     - how many of retries to perform
 - when to give up
 
+---
+
 - we always have time to start a refresh
 - it could be either planned refresh or a retry
 - when everything goes planned, no questions
