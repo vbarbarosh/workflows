@@ -20,7 +20,7 @@ class RefreshRetryStrategy
      * refresh if it comes before next retry, or if next retry can
      * complete before next scheduled refresh.
      */
-    public static function retry_align_schedule(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
+    public static function retry_align_planned(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
     {
         if ($retry_end->lt($planned_start)) {
             return $retry_start;
@@ -28,13 +28,26 @@ class RefreshRetryStrategy
         return $planned_start;
     }
 
+//    /**
+//     * Strategy 3: retry_until_planned
+//     * In case of failure, perform retries but stop when next retry
+//     * can complete after next scheduled refresh.
+//     * Each scheduled refresh is treated as a new base attempt (attempt_no = 0).
+//     */
+//    public static function retry_until_planned(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
+//    {
+//        if ($retry_start->lt($planned_start)) {
+//            return $retry_start;
+//        }
+//        return $planned_start;
+//    }
+
     /**
-     * Strategy 3: retry_until_planned
-     * In case of failure, perform retries but stop when next retry
-     * can complete after next scheduled refresh.
+     * Strategy 3: retry_between_planned
+     * In case of failure, perform retries as many as possible, until next scheduled refresh.
      * Each scheduled refresh is treated as a new base attempt (attempt_no = 0).
      */
-    public static function retry_until_schedule(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
+    public static function retry_between_planned(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
     {
         if ($retry_start->lt($planned_start)) {
             return $retry_start;
