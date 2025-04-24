@@ -5,7 +5,8 @@
     },
     "autoload": {
         "files": [
-            "workflow.php"
+            "workflow.php",
+            "RefreshRetryStrategy.php"
         ]
     },
     "require-dev": {
