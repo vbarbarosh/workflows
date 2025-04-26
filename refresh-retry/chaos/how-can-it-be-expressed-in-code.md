@@ -1,4 +1,4 @@
-## How it can be expressed in code
+## How can it be expressed in code?
 
 ```php
 refresh_retry([
