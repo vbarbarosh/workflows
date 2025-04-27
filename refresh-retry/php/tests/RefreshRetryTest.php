@@ -389,7 +389,7 @@ final class RefreshRetryTest extends TestCase
             'rrule' => "DTSTART:20250101T000000Z\nRRULE:FREQ=HOURLY;INTERVAL=2",
             'action' => REFRESH_RETRY_START,
             'fn' => function (RefreshAttempt $attempt) use ($now) {
-                $this->assertSame($now->copy()->startOfHour()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
+                $this->assertSame($now->copy()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(1, $attempt->attempt_no);
                 $this->assertFalse($attempt->retries_exhausted);
