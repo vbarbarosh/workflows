@@ -245,7 +245,7 @@ function refresh_retry(array $params): void
             call_user_func($fn, new RefreshAttempt([
                 'scheduled_refresh_at' => $scheduled_refresh_at,
                 'refresh_at' => $scheduled_refresh_at,
-                'deadline_at' => null,
+                'deadline_at' => $scheduled_refresh_at->copy()->add($timeout),
                 'attempt_no' => $attempt_no,
                 'retries_exhausted' => $retries_exhausted,
             ]));
@@ -257,7 +257,7 @@ function refresh_retry(array $params): void
             call_user_func($fn, new RefreshAttempt([
                 'scheduled_refresh_at' => $scheduled_refresh_at,
                 'refresh_at' => $scheduled_refresh_at,
-                'deadline_at' => null,
+                'deadline_at' => $scheduled_refresh_at->copy()->add($timeout),
                 'attempt_no' => $attempt_no,
                 'retries_exhausted' => $retries_exhausted,
             ]));
@@ -268,7 +268,7 @@ function refresh_retry(array $params): void
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
             'refresh_at' => $retry_start_at,
-            'deadline_at' => null,
+            'deadline_at' => $retry_start_at->copy()->add($timeout),
             'attempt_no' => $attempt_no,
             'retries_exhausted' => $retries_exhausted,
         ]));
