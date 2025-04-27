@@ -198,8 +198,8 @@ function refresh_retry(array $params): void
     switch ($action) {
     case REFRESH_RETRY_START:
         // Handle Edge Case: The response from the job was lost.
-        $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no] ?? 0 ?: 'PT0M'));
-        $retries_exhausted = $retry_no > count($retry_intervals);
+        $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no + 1] ?? 0 ?: 'PT0M'));
+        $retries_exhausted = $retry_no >= count($retry_intervals);
         break;
     case REFRESH_RETRY_FAILURE:
         if ($retry_no >= count($retry_intervals)) {

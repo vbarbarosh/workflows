@@ -189,6 +189,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => REFRESH_RETRY_START,
             'attempt_no' => 1,
+            'retry_intervals' => [0],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
@@ -243,6 +244,7 @@ final class RefreshRetryTest extends TestCase
             'now' => $now,
             'action' => REFRESH_RETRY_START,
             'attempt_no' => 1,
+            'retry_intervals' => [0],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
