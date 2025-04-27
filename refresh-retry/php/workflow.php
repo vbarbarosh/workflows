@@ -160,7 +160,7 @@ function refresh_retry(array $params): void
     // Calculate the next scheduled refresh, and the next scheduled refresh for
     // the worst-case scenario (when the job died and no success or failure message was sent)
     $scheduled_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
-    $scheduled2_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
+    $scheduled_refresh2_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
 
     // ⚠️ retries_exhausted → retry_at IS NULL, refresh_at IS NULL
     // ⚠️ retries_exhausted → we did our best, no more attempts to refresh
@@ -208,10 +208,15 @@ function refresh_retry(array $params): void
     case REFRESH_RETRY_START:
         // Handle Edge Case: The response from the job was lost.
         // Handle Edge Case: Start after last retry
-        $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no + 1] ?? 0 ?: 'PT0M'));
         $retries_exhausted = $retry_no >= count($retry_intervals);
         if ($retries_exhausted) {
             $retry_at = null;
+        }
+        else if (($retry_no + 1) >= count($retry_intervals)) {
+            $retry_at = null;
+        }
+        else {
+            $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no + 1] ?? 0 ?: 'PT0M'));
         }
         break;
     case REFRESH_RETRY_FAILURE:
@@ -232,7 +237,9 @@ function refresh_retry(array $params): void
     // Choose when the next refresh should start.
     switch ($action) {
     case REFRESH_RETRY_START:
-        $refresh_at = $scheduled2_refresh_at;
+        $refresh_at = $retry_at
+            ? RefreshRetryStrategy::retry_align_planned($retry_at, $scheduled_refresh2_at, $timeout)
+            : $scheduled_refresh2_at;
         break;
     case REFRESH_RETRY_SUCCESS:
         $refresh_at = $scheduled_refresh_at;

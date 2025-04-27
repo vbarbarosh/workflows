@@ -302,7 +302,7 @@ final class RefreshRetryTest extends TestCase
             'attempt_no' => 1,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
-                $this->assertNull($attempt->refresh_at);
+                $this->assertSame($now->copy()->addMinutes(10)->addMinutes(5)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(2, $attempt->attempt_no);
                 $this->assertFalse($attempt->retries_exhausted);
@@ -330,7 +330,7 @@ final class RefreshRetryTest extends TestCase
             'attempt_no' => 2,
             'retry_intervals' => [0, 'PT5M', 'PT15M'],
             'fn' => function (RefreshAttempt $attempt) use ($now) {
-                $this->assertNull($attempt->refresh_at);
+                $this->assertSame($now->copy()->addMinutes(10)->addMinutes(15)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(3, $attempt->attempt_no);
                 $this->assertFalse($attempt->retries_exhausted);
