@@ -162,6 +162,8 @@ function refresh_retry(array $params): void
     // ⚠️ retries_exhausted → we did our best, no more attempts to refresh
 
     // ❔ Rename $attempt_no → $start_counter
+    // ❔ Rename $attempt_no → $attempts_made
+    // ❔ Rename $attempt_no → $attempts_counter
 
     // Edge case: start after last retry
     //     How should it behave?
