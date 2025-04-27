@@ -150,17 +150,41 @@ function refresh_retry(array $params): void
     }
 
     $deadline_at = $now->copy()->add($timeout);
+
     $scheduled_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
-    $next_planned2_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
+    $scheduled2_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
+
+    // Calculate next retry
+    switch ($action) {
+    case REFRESH_RETRY_START:
+        // Handle Edge Case: The response from the job was lost.
+        $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$attempt_no] ?? 0 ?: 'PT0M'));
+        $retries_exhausted = false;
+        break;
+    case REFRESH_RETRY_FAILURE:
+        if ($attempt_no >= count($retry_intervals)) {
+            $retry_at = null;
+            $retries_exhausted = true;
+            break;
+        }
+        $retry_at = empty($retry_intervals[$attempt_no]) ? $now : $now->copy()->add(new DateInterval($retry_intervals[$attempt_no] ?: 'PT0M'));
+        $retries_exhausted = false;
+        break;
+    case REFRESH_RETRY_SUCCESS:
+        $retry_at = null;
+        $retries_exhausted = false;
+        $attempt_no = 0;
+        break;
+    }
 
     switch ($action) {
     case REFRESH_RETRY_START:
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
-            'refresh_at' => empty($rrule) ? null : $next_planned2_at,
+            'refresh_at' => empty($rrule) ? null : $scheduled2_refresh_at,
             'deadline_at' => $deadline_at,
             'attempt_no' => $attempt_no + 1,
-            'retries_exhausted' => false,
+            'retries_exhausted' => $retries_exhausted,
         ]));
         break;
     case REFRESH_RETRY_SUCCESS:
@@ -169,7 +193,7 @@ function refresh_retry(array $params): void
             'refresh_at' => empty($rrule) ? null : $scheduled_refresh_at,
             'deadline_at' => null,
             'attempt_no' => 0,
-            'retries_exhausted' => false,
+            'retries_exhausted' => $retries_exhausted,
         ]));
         break;
     case REFRESH_RETRY_FAILURE:
@@ -180,25 +204,26 @@ function refresh_retry(array $params): void
                 'refresh_at' => null,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'retries_exhausted' => true,
+                'retries_exhausted' => $retries_exhausted,
             ]));
             break;
         }
-        // Schedule a retry
-        if (empty($retry_intervals[$attempt_no])) {
-            // When there is no delay, reuse $now
-            $retry_start_at = $now;
-        }
-        else {
-            $delay = new DateInterval($retry_intervals[$attempt_no]);
-            if ($delay->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
-                // When there is no delay, reuse $now
-                $retry_start_at = $now;
-            }
-            else {
-                $retry_start_at = $now->copy()->add($delay);
-            }
-        }
+        $retry_start_at = $retry_at;
+//        // Schedule a retry
+//        if (empty($retry_intervals[$attempt_no])) {
+//            // When there is no delay, reuse $now
+//            $retry_start_at = $now;
+//        }
+//        else {
+//            $delay = new DateInterval($retry_intervals[$attempt_no]);
+//            if ($delay->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
+//                // When there is no delay, reuse $now
+//                $retry_start_at = $now;
+//            }
+//            else {
+//                $retry_start_at = $now->copy()->add($delay);
+//            }
+//        }
         $deadline_at = $retry_start_at->copy()->add($timeout);
         if (!$scheduled_refresh_at) {
             // No more planned refreshes are expected.
@@ -208,7 +233,7 @@ function refresh_retry(array $params): void
                 'refresh_at' => $retry_start_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'retries_exhausted' => false,
+                'retries_exhausted' => $retries_exhausted,
             ]));
             break;
         }
@@ -222,7 +247,7 @@ function refresh_retry(array $params): void
                 'refresh_at' => $scheduled_refresh_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'retries_exhausted' => false,
+                'retries_exhausted' => $retries_exhausted,
             ]));
             break;
         }
@@ -234,7 +259,7 @@ function refresh_retry(array $params): void
                 'refresh_at' => $scheduled_refresh_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'retries_exhausted' => false,
+                'retries_exhausted' => $retries_exhausted,
             ]));
             break;
         }
@@ -245,7 +270,7 @@ function refresh_retry(array $params): void
             'refresh_at' => $retry_start_at,
             'deadline_at' => null,
             'attempt_no' => $attempt_no,
-            'retries_exhausted' => false,
+            'retries_exhausted' => $retries_exhausted,
         ]));
         break;
     default:
