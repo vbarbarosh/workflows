@@ -249,12 +249,16 @@ function refresh_retry(array $params): void
         break;
     }
 
+    if ($retries_exhausted) {
+        $refresh_at = null;
+    }
+
     switch ($action) {
     case REFRESH_RETRY_START:
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
             'retry_at' => $retry_at,
-            'refresh_at' => $refresh_at,
+            'refresh_at' => $refresh_at, // Next refresh_at after the current refresh times out.
             'deadline_at' => $deadline_at,
             'attempt_no' => $attempt_no + 1,
             'retries_exhausted' => $retries_exhausted,
