@@ -95,7 +95,7 @@ function handle_start_success_failure(string $action): void
     }
 
     $jobs[] = [
-        'return_at' => $now->copy()->addMinutes(mt_rand(3, 5)),
+        'return_at' => $now->copy()->addMinutes(mt_rand(1, 5)),
         'action' => mt_rand(0, 100) > 60 ? REFRESH_RETRY_SUCCESS : REFRESH_RETRY_FAILURE,
     ];
 }
