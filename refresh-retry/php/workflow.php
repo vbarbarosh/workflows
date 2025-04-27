@@ -156,6 +156,40 @@ function refresh_retry(array $params): void
     $scheduled_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
     $scheduled2_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
 
+    // ⚠️ retries_exhausted → retry_at IS NULL, refresh_at IS NULL
+    // ⚠️ retries_exhausted → we did our best, no more attempts to refresh
+
+    // ❔ Rename $attempt_no → $start_counter
+
+    // REFRESH_RETRY_START
+    // -------------------
+    //
+    // $attempt_no === 0 && count($retry_intervals) === 0:
+    //     start refresh; no retries to perform in case of failure
+    //
+    // $attempt_no === 0 && count($retry_intervals) === 1:
+    //     start refresh; 1 retry to perform in case of failure
+    //
+    // $attempt_no === 0 && count($retry_intervals) === 2:
+    //     start refresh; 2 retries to perform in case of failure
+    //
+    // $attempt_no === 1 && count($retry_intervals) === 1:
+    //     first retry; no more retries to perform in case of failure
+    //
+    // $attempt_no === 2 && count($retry_intervals) === 1:
+    //     second retry, but only one retry was specified to perform.
+    //     that is an exception, no refresh should be started! ⚠️
+    //
+    // $attempt_no === 1 && count($retry_intervals) === 2:
+    //     first retry; 1 more retry to perform in case of failure
+    //
+    // $attempt_no === 2 && count($retry_intervals) === 2:
+    //     second retry; no more retry to perform in case of failure
+    //
+    // $attempt_no === 2 && count($retry_intervals) === 2:
+    //     third retry, but only 2 retries was specified.
+    //     this is an exception, no refresh should be started! ⚠️
+
     // Calculate next retry
     switch ($action) {
     case REFRESH_RETRY_START:
