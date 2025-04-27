@@ -99,7 +99,9 @@ function refresh_retry(array $params): void
     $error_details = null;
     try {
         $retry_intervals = $params['retry_intervals'] ?? []; // [null, 'PT0M', 'PT1M', 'PT5M', 'PT15M', 'PT30M', 'PT1H']
-        array_unshift($retry_intervals, null);
+        if (!is_array($retry_intervals)) {
+            throw new RuntimeException('Not an array');
+        }
     }
     catch (Throwable $exception) {
         $error_details = get_class($exception) . "\n" . $exception->getMessage();
@@ -190,20 +192,22 @@ function refresh_retry(array $params): void
     //     third retry, but only 2 retries was specified.
     //     this is an exception, no refresh should be started! ⚠️
 
+    $retry_no = $attempt_no - 1;
+
     // Calculate next retry
     switch ($action) {
     case REFRESH_RETRY_START:
         // Handle Edge Case: The response from the job was lost.
-        $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$attempt_no] ?? 0 ?: 'PT0M'));
-        $retries_exhausted = $attempt_no > count($retry_intervals);
+        $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no] ?? 0 ?: 'PT0M'));
+        $retries_exhausted = $retry_no > count($retry_intervals);
         break;
     case REFRESH_RETRY_FAILURE:
-        if ($attempt_no >= count($retry_intervals)) {
+        if ($retry_no >= count($retry_intervals)) {
             $retry_at = null;
             $retries_exhausted = true;
             break;
         }
-        $retry_at = empty($retry_intervals[$attempt_no]) ? $now : $now->copy()->add(new DateInterval($retry_intervals[$attempt_no] ?: 'PT0M'));
+        $retry_at = empty($retry_intervals[$retry_no]) ? $now : $now->copy()->add(new DateInterval($retry_intervals[$retry_no] ?: 'PT0M'));
         $retries_exhausted = false;
         break;
     case REFRESH_RETRY_SUCCESS:
