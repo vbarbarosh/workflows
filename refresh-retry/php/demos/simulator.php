@@ -15,7 +15,7 @@ function main(): void
     $now = Carbon::create('2020/01/01 00:00:00');
 
     info('👨‍💻 Manual Start');
-    handle_start_success_failure(REFRESH_RETRY_START, false);
+    handle_start_success_failure(REFRESH_RETRY_START);
 
     while (true) {
         $next = array_filter([$db['refresh_at'], ...array_map(fn ($v) => $v['return_at'], $jobs)]);
@@ -49,34 +49,32 @@ function process_poll(): void
     handle_start_success_failure(REFRESH_RETRY_START);
 }
 
-function handle_start_success_failure(string $action, $log = true): void
+function handle_start_success_failure(string $action): void
 {
     global $now, $db, $jobs;
 
-    if ($log) {
-        switch ($action) {
-        case REFRESH_RETRY_START:
-            if ($db['attempt_no'] === 0) {
-                info('🚀 Refresh started');
-            }
-            else {
-                info('🔄 Retry started');
-            }
-            break;
-        case REFRESH_RETRY_SUCCESS:
-            info(sprintf('✅ Success (%d)', $db['attempt_no']));
-            break;
-        case REFRESH_RETRY_FAILURE:
-            info(sprintf('❌ Failure (%d)', $db['attempt_no']));
-            break;
+    switch ($action) {
+    case REFRESH_RETRY_START:
+        if ($db['attempt_no'] === 0) {
+            info('🚀 Refresh started');
         }
+        else {
+            info('🔄 Retry started');
+        }
+        break;
+    case REFRESH_RETRY_SUCCESS:
+        info('✅ Success');
+        break;
+    case REFRESH_RETRY_FAILURE:
+        info(sprintf('❌ Failure (%d)', $db['attempt_no']));
+        break;
     }
 
     refresh_retry([
         'now' => $now,
         'rrule' => 'RRULE:FREQ=DAILY;BYHOUR=6,16;BYMINUTE=0;BYSECOND=0',
-        'retry_intervals' => ['PT0M', 'PT1M', 'PT5M'], // , 'PT10M', 'PT15M'],
         'timeout' => 'PT10M',
+        'retry_intervals' => ['PT0M', 'PT1M', 'PT5M'], // , 'PT10M', 'PT15M'],
         'attempt_no' => $db['attempt_no'],
         'action' => $action,
         'fn' => function (RefreshAttempt $attempt) use (&$db) {
