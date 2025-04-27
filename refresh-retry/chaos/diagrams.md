@@ -17,14 +17,14 @@ flowchart TD
     Start["🚀 Start"]
     Success["✅ Success"]
     Failure["❌ Failure"]
-    FinalFailure["💥 Final Failure"]
+    RetriesExhausted["💥 Retries Exhausted"]
 
     ManualStart --> Start
     ScheduleStart --> Start
     Failure --> Retry2["🔄 Retry"]
     Retry --> Start
     Start --> Success
-    Start --> Failure --> FinalFailure
+    Start --> Failure --> RetriesExhausted
 ```
 
 ## Simple refresh/retry policy
@@ -56,14 +56,14 @@ classDiagram
         🧹⏰ reset deadline_at time
     }
 
-    class FinalFailure["💥 Final Failure"] {
+    class RetriesExhausted["💥 Retries Exhausted"] {
         🧹🗓 reset refresh_at time
         🧹⏰ reset deadline_at time
     }
 
     Start --> Success
     Start --> Failure
-    Start --> FinalFailure
+    Start --> RetriesExhausted
 ```
 
 ## Scheduled refresh
