@@ -18,17 +18,20 @@ function main(): void
     handle_start_success_failure(REFRESH_RETRY_START);
 
     while (true) {
+        $jobs = []; // Simulate sudden job process termination.
+
         $next = array_filter([$db['refresh_at'], ...array_map(fn ($v) => $v['return_at'], $jobs)]);
         usort($next, function (Carbon $a, Carbon $b) {
             return $a->getTimestamp() <=> $b->getTimestamp();
         });
         if (empty($next)) {
-            info('The end');
+            info('🚪 The end. Bye! 👋');
             break;
         }
         $now = $next[0]->copy();
         process_jobs();
         process_poll();
+        info('💤');
         sleep(1);
     }
 }
@@ -59,7 +62,7 @@ function handle_start_success_failure(string $action): void
             info('🚀 Refresh started');
         }
         else {
-            info('🔄 Retry started');
+            info("🔄 Retry started #{$db['attempt_no']}");
         }
         break;
     case REFRESH_RETRY_SUCCESS:
@@ -78,16 +81,22 @@ function handle_start_success_failure(string $action): void
         'attempt_no' => $db['attempt_no'],
         'action' => $action,
         'fn' => function (RefreshAttempt $attempt) use (&$db) {
-            if ($attempt->retries_exhausted) {
-                info('⚠️ No more retries. Wait until next planned refresh.');
-                $attempt->attempt_no = 0;
-                $attempt->refresh_at = $attempt->scheduled_refresh_at;
-            }
+//            if ($attempt->retries_exhausted) {
+//                info('⚠️ No more retries. Wait until next planned refresh.');
+//                $attempt->attempt_no = 0;
+//                $attempt->refresh_at = $attempt->scheduled_refresh_at;
+//            }
             $db['refresh_at'] = $attempt->refresh_at;
             $db['attempt_no'] = $attempt->attempt_no;
-//            if ($attempt->retries_exhausted) {
-//                info('⚠️ Refresh was disabled until the user reviewed it. An email about the incident was sent to the user.');
-//            }
+            if ($attempt->retries_exhausted) {
+                info("⚠️🚨 Refresh was disabled until the user reviewed the model settings/configuration.");
+                info('📧 An email about the incident was sent to the user.');
+                $db['refresh_at'] = null;
+            }
+            else {
+                $db['refresh_at'] = $attempt->refresh_at;
+                $db['attempt_no'] = $attempt->attempt_no;
+            }
         },
     ]);
     if ($action !== REFRESH_RETRY_START) {
