@@ -151,6 +151,8 @@ function refresh_retry(array $params): void
 
     $deadline_at = $now->copy()->add($timeout);
 
+    // Calculate the next scheduled refresh, and the next scheduled refresh for
+    // the worst-case scenario (when the job died and no success or failure message was sent)
     $scheduled_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
     $scheduled2_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
 
