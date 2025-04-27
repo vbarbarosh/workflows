@@ -83,7 +83,7 @@ function handle_start_success_failure(string $action, $log = true): void
             if ($attempt->final_failure) {
                 info('⚠️ No more retries. Wait until next planned refresh.');
                 $attempt->attempt_no = 0;
-                $attempt->refresh_at = $attempt->planned_refresh_at;
+                $attempt->refresh_at = $attempt->scheduled_refresh_at;
             }
             $db['refresh_at'] = $attempt->refresh_at;
             $db['attempt_no'] = $attempt->attempt_no;
