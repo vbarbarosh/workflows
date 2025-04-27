@@ -163,6 +163,9 @@ function refresh_retry(array $params): void
 
     // ❔ Rename $attempt_no → $start_counter
 
+    // Edge case: start after last retry
+    //     How should it behave?
+
     // REFRESH_RETRY_START
     // -------------------
     //
@@ -198,6 +201,7 @@ function refresh_retry(array $params): void
     switch ($action) {
     case REFRESH_RETRY_START:
         // Handle Edge Case: The response from the job was lost.
+        // Handle Edge Case: Start after last retry
         $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no + 1] ?? 0 ?: 'PT0M'));
         $retries_exhausted = $retry_no >= count($retry_intervals);
         break;
