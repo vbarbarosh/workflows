@@ -173,7 +173,6 @@ function refresh_retry(array $params): void
     case REFRESH_RETRY_SUCCESS:
         $retry_at = null;
         $retries_exhausted = false;
-        $attempt_no = 0;
         break;
     }
 
