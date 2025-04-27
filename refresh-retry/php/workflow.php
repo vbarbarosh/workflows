@@ -10,6 +10,8 @@ const REFRESH_RETRY_FAILURE = 'failure';
 class RefreshAttempt
 {
     public ?Carbon $scheduled_refresh_at = null;
+    public ?Carbon $retry_at = null;
+
     public ?Carbon $refresh_at;
     public ?Carbon $deadline_at;
     public int $attempt_no;
@@ -18,6 +20,8 @@ class RefreshAttempt
     public function __construct($params)
     {
         $this->scheduled_refresh_at = $params['scheduled_refresh_at'];
+        $this->retry_at = $params['retry_at'];
+
         $this->refresh_at = $params['refresh_at'];
         $this->deadline_at = $params['deadline_at'];
         $this->attempt_no = $params['attempt_no'];
@@ -206,6 +210,9 @@ function refresh_retry(array $params): void
         // Handle Edge Case: Start after last retry
         $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no + 1] ?? 0 ?: 'PT0M'));
         $retries_exhausted = $retry_no >= count($retry_intervals);
+        if ($retries_exhausted) {
+            $retry_at = null;
+        }
         break;
     case REFRESH_RETRY_FAILURE:
         if ($retry_no >= count($retry_intervals)) {
@@ -239,6 +246,7 @@ function refresh_retry(array $params): void
     case REFRESH_RETRY_START:
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
+            'retry_at' => $retry_at,
             'refresh_at' => $refresh_at,
             'deadline_at' => $deadline_at,
             'attempt_no' => $attempt_no + 1,
@@ -248,6 +256,7 @@ function refresh_retry(array $params): void
     case REFRESH_RETRY_SUCCESS:
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
+            'retry_at' => $retry_at,
             'refresh_at' => $refresh_at,
             'deadline_at' => null,
             'attempt_no' => 0,
@@ -257,6 +266,7 @@ function refresh_retry(array $params): void
     case REFRESH_RETRY_FAILURE:
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
+            'retry_at' => $retry_at,
             'refresh_at' => $refresh_at,
             'deadline_at' => null,
             'attempt_no' => $attempt_no,
