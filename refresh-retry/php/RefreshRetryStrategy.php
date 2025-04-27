@@ -9,7 +9,7 @@ class RefreshRetryStrategy
      * In case of failure, perform retries until success.
      * Scheduled refresh could follow only after successful attempt.
      */
-    public static function retry_until_success(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
+    public static function retry_until_success(?Carbon $retry_start): ?Carbon
     {
         return $retry_start;
     }
@@ -20,8 +20,12 @@ class RefreshRetryStrategy
      * refresh if it comes before next retry, or if next retry can
      * complete before next scheduled refresh.
      */
-    public static function retry_align_planned(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
+    public static function retry_align_planned(?Carbon $retry_start, ?Carbon $planned_start, DateInterval $timeout): ?Carbon
     {
+        if (!$retry_start) {
+            return null;
+        }
+        $retry_end = $retry_start->copy()->add($timeout);
         if ($retry_end->lt($planned_start)) {
             return $retry_start;
         }

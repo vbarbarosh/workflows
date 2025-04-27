@@ -176,11 +176,24 @@ function refresh_retry(array $params): void
         break;
     }
 
+    // Choose when the next refresh should start.
+    switch ($action) {
+    case REFRESH_RETRY_START:
+        $refresh_at = $scheduled2_refresh_at;
+        break;
+    case REFRESH_RETRY_SUCCESS:
+        $refresh_at = $scheduled_refresh_at;
+        break;
+    case REFRESH_RETRY_FAILURE:
+        $refresh_at = RefreshRetryStrategy::retry_align_planned($retry_at, $scheduled_refresh_at, $timeout);
+        break;
+    }
+
     switch ($action) {
     case REFRESH_RETRY_START:
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
-            'refresh_at' => empty($rrule) ? null : $scheduled2_refresh_at,
+            'refresh_at' => $refresh_at,
             'deadline_at' => $deadline_at,
             'attempt_no' => $attempt_no + 1,
             'retries_exhausted' => $retries_exhausted,
@@ -189,89 +202,97 @@ function refresh_retry(array $params): void
     case REFRESH_RETRY_SUCCESS:
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
-            'refresh_at' => empty($rrule) ? null : $scheduled_refresh_at,
+            'refresh_at' => $refresh_at,
             'deadline_at' => null,
             'attempt_no' => 0,
             'retries_exhausted' => $retries_exhausted,
         ]));
         break;
     case REFRESH_RETRY_FAILURE:
-        if (count($retry_intervals) <= $attempt_no) {
-            // Several attempts were made, but all failed
-            call_user_func($fn, new RefreshAttempt([
-                'scheduled_refresh_at' => $scheduled_refresh_at,
-                'refresh_at' => null,
-                'deadline_at' => null,
-                'attempt_no' => $attempt_no,
-                'retries_exhausted' => $retries_exhausted,
-            ]));
-            break;
-        }
-        $retry_start_at = $retry_at;
-//        // Schedule a retry
-//        if (empty($retry_intervals[$attempt_no])) {
-//            // When there is no delay, reuse $now
-//            $retry_start_at = $now;
-//        }
-//        else {
-//            $delay = new DateInterval($retry_intervals[$attempt_no]);
-//            if ($delay->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
-//                // When there is no delay, reuse $now
-//                $retry_start_at = $now;
-//            }
-//            else {
-//                $retry_start_at = $now->copy()->add($delay);
-//            }
-//        }
-        $deadline_at = $retry_start_at->copy()->add($timeout);
-        if (!$scheduled_refresh_at) {
-            // No more planned refreshes are expected.
-            // Start the retry after the specified delay.
-            call_user_func($fn, new RefreshAttempt([
-                'scheduled_refresh_at' => $scheduled_refresh_at,
-                'refresh_at' => $retry_start_at,
-                'deadline_at' => null,
-                'attempt_no' => $attempt_no,
-                'retries_exhausted' => $retries_exhausted,
-            ]));
-            break;
-        }
-        // Keep the refresh aligned with the original timing
-        // -------------------------------------------------
-        if ($retry_start_at->gt($scheduled_refresh_at)) {
-            // Retry starts after the next planned refresh.
-            // Wait less than necessary and start the retry at the next planned refresh.
-            call_user_func($fn, new RefreshAttempt([
-                'scheduled_refresh_at' => $scheduled_refresh_at,
-                'refresh_at' => $scheduled_refresh_at,
-                'deadline_at' => $scheduled_refresh_at->copy()->add($timeout),
-                'attempt_no' => $attempt_no,
-                'retries_exhausted' => $retries_exhausted,
-            ]));
-            break;
-        }
-        if ($deadline_at->gt($scheduled_refresh_at)) {
-            // Retry starts before the planned refresh but might end after it.
-            // Wait a bit longer and start the retry at the next planned refresh.
-            call_user_func($fn, new RefreshAttempt([
-                'scheduled_refresh_at' => $scheduled_refresh_at,
-                'refresh_at' => $scheduled_refresh_at,
-                'deadline_at' => $scheduled_refresh_at->copy()->add($timeout),
-                'attempt_no' => $attempt_no,
-                'retries_exhausted' => $retries_exhausted,
-            ]));
-            break;
-        }
-        // Retry starts before and is expected to finish before the next planned refresh.
-        // Start the retry after the specified delay.
         call_user_func($fn, new RefreshAttempt([
             'scheduled_refresh_at' => $scheduled_refresh_at,
-            'refresh_at' => $retry_start_at,
-            'deadline_at' => $retry_start_at->copy()->add($timeout),
+            'refresh_at' => $refresh_at,
+            'deadline_at' => null,
             'attempt_no' => $attempt_no,
             'retries_exhausted' => $retries_exhausted,
         ]));
         break;
+//        if (count($retry_intervals) <= $attempt_no) {
+//            // Several attempts were made, but all failed
+//            call_user_func($fn, new RefreshAttempt([
+//                'scheduled_refresh_at' => $scheduled_refresh_at,
+//                'refresh_at' => null,
+//                'deadline_at' => null,
+//                'attempt_no' => $attempt_no,
+//                'retries_exhausted' => $retries_exhausted,
+//            ]));
+//            break;
+//        }
+//        $retry_start_at = $retry_at;
+////        // Schedule a retry
+////        if (empty($retry_intervals[$attempt_no])) {
+////            // When there is no delay, reuse $now
+////            $retry_start_at = $now;
+////        }
+////        else {
+////            $delay = new DateInterval($retry_intervals[$attempt_no]);
+////            if ($delay->format('%y-%m-%d %h:%i:%s.%f') === '0-0-0 0:0:0.0') {
+////                // When there is no delay, reuse $now
+////                $retry_start_at = $now;
+////            }
+////            else {
+////                $retry_start_at = $now->copy()->add($delay);
+////            }
+////        }
+//        $deadline_at = $retry_start_at->copy()->add($timeout);
+//        if (!$scheduled_refresh_at) {
+//            // No more planned refreshes are expected.
+//            // Start the retry after the specified delay.
+//            call_user_func($fn, new RefreshAttempt([
+//                'scheduled_refresh_at' => $scheduled_refresh_at,
+//                'refresh_at' => $retry_start_at,
+//                'deadline_at' => null,
+//                'attempt_no' => $attempt_no,
+//                'retries_exhausted' => $retries_exhausted,
+//            ]));
+//            break;
+//        }
+//        // Keep the refresh aligned with the original timing
+//        // -------------------------------------------------
+//        if ($retry_start_at->gt($scheduled_refresh_at)) {
+//            // Retry starts after the next planned refresh.
+//            // Wait less than necessary and start the retry at the next planned refresh.
+//            call_user_func($fn, new RefreshAttempt([
+//                'scheduled_refresh_at' => $scheduled_refresh_at,
+//                'refresh_at' => $scheduled_refresh_at,
+//                'deadline_at' => $scheduled_refresh_at->copy()->add($timeout),
+//                'attempt_no' => $attempt_no,
+//                'retries_exhausted' => $retries_exhausted,
+//            ]));
+//            break;
+//        }
+//        if ($deadline_at->gt($scheduled_refresh_at)) {
+//            // Retry starts before the planned refresh but might end after it.
+//            // Wait a bit longer and start the retry at the next planned refresh.
+//            call_user_func($fn, new RefreshAttempt([
+//                'scheduled_refresh_at' => $scheduled_refresh_at,
+//                'refresh_at' => $scheduled_refresh_at,
+//                'deadline_at' => $scheduled_refresh_at->copy()->add($timeout),
+//                'attempt_no' => $attempt_no,
+//                'retries_exhausted' => $retries_exhausted,
+//            ]));
+//            break;
+//        }
+//        // Retry starts before and is expected to finish before the next planned refresh.
+//        // Start the retry after the specified delay.
+//        call_user_func($fn, new RefreshAttempt([
+//            'scheduled_refresh_at' => $scheduled_refresh_at,
+//            'refresh_at' => $retry_start_at,
+//            'deadline_at' => $retry_start_at->copy()->add($timeout),
+//            'attempt_no' => $attempt_no,
+//            'retries_exhausted' => $retries_exhausted,
+//        ]));
+//        break;
     default:
         throw new DomainException("Invalid action: $action");
     }
