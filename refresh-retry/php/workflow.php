@@ -13,7 +13,7 @@ class RefreshAttempt
     public ?Carbon $refresh_at;
     public ?Carbon $deadline_at;
     public int $attempt_no;
-    public bool $final_failure;
+    public bool $retries_exhausted;
 
     public function __construct($params)
     {
@@ -21,7 +21,7 @@ class RefreshAttempt
         $this->refresh_at = $params['refresh_at'];
         $this->deadline_at = $params['deadline_at'];
         $this->attempt_no = $params['attempt_no'];
-        $this->final_failure = $params['final_failure'];
+        $this->retries_exhausted = $params['retries_exhausted'];
     }
 }
 
@@ -35,7 +35,7 @@ class RefreshAttempt
  *
  * Transitions diagram:
  *   start → success|failure,
- *   failure → success|final_failure
+ *   failure → success|retries_exhausted
  *
  * Parameters:
  *   - $now | A reference time to calculate the next refresh and deadline periods. | Instance of Carbon (or null to use the current time).
@@ -160,7 +160,7 @@ function refresh_retry(array $params): void
             'refresh_at' => empty($rrule) ? null : $next_planned2_at,
             'deadline_at' => $deadline_at,
             'attempt_no' => $attempt_no + 1,
-            'final_failure' => false,
+            'retries_exhausted' => false,
         ]));
         break;
     case REFRESH_RETRY_SUCCESS:
@@ -169,7 +169,7 @@ function refresh_retry(array $params): void
             'refresh_at' => empty($rrule) ? null : $scheduled_refresh_at,
             'deadline_at' => null,
             'attempt_no' => 0,
-            'final_failure' => false,
+            'retries_exhausted' => false,
         ]));
         break;
     case REFRESH_RETRY_FAILURE:
@@ -180,7 +180,7 @@ function refresh_retry(array $params): void
                 'refresh_at' => null,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'final_failure' => true,
+                'retries_exhausted' => true,
             ]));
             break;
         }
@@ -208,7 +208,7 @@ function refresh_retry(array $params): void
                 'refresh_at' => $retry_start_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'final_failure' => false,
+                'retries_exhausted' => false,
             ]));
             break;
         }
@@ -222,7 +222,7 @@ function refresh_retry(array $params): void
                 'refresh_at' => $scheduled_refresh_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'final_failure' => false,
+                'retries_exhausted' => false,
             ]));
             break;
         }
@@ -234,7 +234,7 @@ function refresh_retry(array $params): void
                 'refresh_at' => $scheduled_refresh_at,
                 'deadline_at' => null,
                 'attempt_no' => $attempt_no,
-                'final_failure' => false,
+                'retries_exhausted' => false,
             ]));
             break;
         }
@@ -245,7 +245,7 @@ function refresh_retry(array $params): void
             'refresh_at' => $retry_start_at,
             'deadline_at' => null,
             'attempt_no' => $attempt_no,
-            'final_failure' => false,
+            'retries_exhausted' => false,
         ]));
         break;
     default:

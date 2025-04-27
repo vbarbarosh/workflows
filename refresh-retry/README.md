@@ -37,7 +37,7 @@ And here is an overview of how it works:
 - ❌ failure — refresh failed, retry should be performed:
   - 🗓 calculate `refresh_at` immediately after **backoff delay**
   - 🧹⏰ reset `deadline_at` time
-- 💥 final_failure — several attempts were made, but all failed
+- 💥 retries_exhausted — several attempts were made, but all failed
   - 🧹🗓 reset `refresh_at` time (no more attempt should be performed)
   - 🧹⏰ reset `deadline_at` time
 

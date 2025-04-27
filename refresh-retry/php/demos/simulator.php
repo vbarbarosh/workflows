@@ -80,14 +80,14 @@ function handle_start_success_failure(string $action, $log = true): void
         'attempt_no' => $db['attempt_no'],
         'action' => $action,
         'fn' => function (RefreshAttempt $attempt) use (&$db) {
-            if ($attempt->final_failure) {
+            if ($attempt->retries_exhausted) {
                 info('⚠️ No more retries. Wait until next planned refresh.');
                 $attempt->attempt_no = 0;
                 $attempt->refresh_at = $attempt->scheduled_refresh_at;
             }
             $db['refresh_at'] = $attempt->refresh_at;
             $db['attempt_no'] = $attempt->attempt_no;
-//            if ($attempt->final_failure) {
+//            if ($attempt->retries_exhausted) {
 //                info('⚠️ Refresh was disabled until the user reviewed it. An email about the incident was sent to the user.');
 //            }
         },

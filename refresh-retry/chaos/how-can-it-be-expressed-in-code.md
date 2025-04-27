@@ -43,7 +43,7 @@ public function refresh_retry(string $action): void
             $this->refresh_at = $attempt->refresh_at;
             $this->deadline_at = $attempt->deadline_at;
             $this->refresh_attempt = $attempt->attempt_no;
-            if ($attempt->final_failure) {
+            if ($attempt->retries_exhausted) {
                 $this->is_disabled_until_update = true;
                 $this->user_friendly_disabled_message = 'Something is wrong with the provided url. Please replace it and try again.';
             }
@@ -78,7 +78,7 @@ refresh_retry([
     'fn' => function (RefreshAttempt $attempt) use ($model) {
         $model->refresh_at = $attempt->refresh_at;
         $model->refresh_attempt = $attempt->attempt_no;
-        if ($attempt->final_failure) {
+        if ($attempt->retries_exhausted) {
             $this->is_disabled_until_update = true;
             $this->user_friendly_disabled_message = 'Something is wrong with the provided url. Please replace it and try again.';
         }

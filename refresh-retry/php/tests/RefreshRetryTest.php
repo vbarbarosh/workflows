@@ -112,7 +112,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         $now->addMinutes(5);
@@ -123,13 +123,13 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(0, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
     }
 
-    #[Test] // Non-recurring • start → final_failure
-    public function non_recurring___start_final_failure(): void
+    #[Test] // Non-recurring • start → retries_exhausted
+    public function non_recurring___start_retries_exhausted(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -139,7 +139,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -152,7 +152,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertTrue($attempt->final_failure);
+                $this->assertTrue($attempt->retries_exhausted);
             },
         ]);
     }
@@ -168,7 +168,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -182,7 +182,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertSame($now, $attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         refresh_retry([
@@ -193,7 +193,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(2, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it succeeds after 1 minute
@@ -206,13 +206,13 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(0, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
     }
 
-    #[Test] // Non-recurring • start → failure[1] → start → final failure
-    public function non_recurring___start_failure1_start_final_failure(): void
+    #[Test] // Non-recurring • start → failure[1] → start → retries_exhausted
+    public function non_recurring___start_failure1_start_retries_exhausted(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -222,7 +222,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -236,7 +236,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertSame($now, $attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         refresh_retry([
@@ -247,7 +247,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(2, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -260,13 +260,13 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(2, $attempt->attempt_no);
-                $this->assertTrue($attempt->final_failure);
+                $this->assertTrue($attempt->retries_exhausted);
             },
         ]);
     }
 
-    #[Test] // Non-recurring • start → failure[1] → start → failure[2] → start → failure[3] → start → final_failure
-    public function non_recurring___start_failure1_start_failure2_start_failure3_start_final_failure(): void
+    #[Test] // Non-recurring • start → failure[1] → start → failure[2] → start → failure[3] → start → retries_exhausted
+    public function non_recurring___start_failure1_start_failure2_start_failure3_start_retries_exhausted(): void
     {
         $now = Carbon::parse('2025/01/01');
         refresh_retry([
@@ -276,7 +276,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -290,7 +290,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertSame($now->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // The first retry is immediate
@@ -303,7 +303,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(2, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -317,7 +317,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertSame($now->copy()->addMinutes(5)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(2, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // The second retry is after 5 minutes
@@ -331,7 +331,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(3, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -345,7 +345,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertSame($now->copy()->addMinutes(15)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(3, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // The third retry is after 15 minutes
@@ -359,7 +359,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(4, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         // Let's pretend it failed after 1 minute
@@ -373,7 +373,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertNull($attempt->refresh_at);
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(4, $attempt->attempt_no);
-                $this->assertTrue($attempt->final_failure);
+                $this->assertTrue($attempt->retries_exhausted);
             },
         ]);
     }
@@ -390,7 +390,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertSame($now->copy()->startOfHour()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertSame($now->copy()->addMinutes(10)->toJSON(), $attempt->deadline_at->toJSON());
                 $this->assertSame(1, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
         $now->addMinutes(5);
@@ -402,7 +402,7 @@ final class RefreshRetryTest extends TestCase
                 $this->assertSame($now->copy()->startOfHour()->addHours(2)->toJSON(), $attempt->refresh_at->toJSON());
                 $this->assertNull($attempt->deadline_at);
                 $this->assertSame(0, $attempt->attempt_no);
-                $this->assertFalse($attempt->final_failure);
+                $this->assertFalse($attempt->retries_exhausted);
             },
         ]);
     }
