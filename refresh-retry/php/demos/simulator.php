@@ -35,6 +35,11 @@ function main(): void
                     }
                 },
             ]);
+            // Uncomment to simulate situations where the job process dies without
+            // sending any event and no other timeout handler is configured.
+//            if (time()) {
+//                return;
+//            }
             if ($action === REFRESH_RETRY_START) {
                 $jobs[] = [
                     'return_at' => $now->copy()->addMinutes(mt_rand(1, 5)),
