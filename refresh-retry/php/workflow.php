@@ -169,8 +169,25 @@ function refresh_retry(array $params): void
     // ❔ Rename $attempt_no → $attempts_made
     // ❔ Rename $attempt_no → $attempts_counter
 
-    // Edge case: start after last retry
-    //     How should it behave?
+    // 🧩 Edge case: All responses were lost
+    // This is definitely an issue with the configuration or internal infrastructure.
+    //
+    // 🧩 Edge case: The last response was lost
+    // Errors occur. Although another mechanism should be responsible for this,
+    // two options are available:
+    // 1. Completely rely on another mechanism to cover this edge case.
+    //    It should fire REFRESH_RETRY_FAILURE.
+    // 2. On the last retry, instead of returning an empty `refresh_at`,
+    //    return one immediately after the delay. This way, the next time
+    //    REFRESH_RETRY_START fires, `$retries_exhausted` will be set to `true`
+    //    and `$refresh_at` will be `null`. ⚠️ Special care must be taken
+    //    not to start the actual job.
+    //
+    // 🧩 Edge case: Request to start after last retry was already performed
+    //     When a start request followed
+    //     - request to start
+    //     - retry number is greater than no of available retries
+    //     -  `retries_exhausted = true`
 
     // REFRESH_RETRY_START
     // -------------------
@@ -206,8 +223,7 @@ function refresh_retry(array $params): void
     // Calculate next retry
     switch ($action) {
     case REFRESH_RETRY_START:
-        // Handle Edge Case: The response from the job was lost.
-        // Handle Edge Case: Start after last retry
+        // 🧩 Edge case: Request to start after last retry was already performed
         $retries_exhausted = $retry_no >= count($retry_intervals);
         if ($retries_exhausted) {
             $retry_at = null;
