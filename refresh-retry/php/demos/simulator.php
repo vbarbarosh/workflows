@@ -19,11 +19,14 @@ function main(): void
                 'attempt_no' => $db['attempt_no'],
                 'action' => $action,
                 'fn' => function (RefreshAttempt $attempt) use ($info, &$db) {
-//            if ($attempt->retries_exhausted) {
-//                info('🚨 No more retries. Wait until next planned refresh.');
-//                $attempt->attempt_no = 0;
-//                $attempt->refresh_at = $attempt->scheduled_refresh_at;
-//            }
+//                    if (time()) {
+//                        if ($attempt->retries_exhausted) {
+//                            $info('🚨 No more retries. Wait until next planned refresh.');
+//                            $db['refresh_at'] = $attempt->scheduled_refresh_at;
+//                            $db['attempt_no'] = 0;
+//                            return;
+//                        }
+//                    }
                     $db['refresh_at'] = $attempt->refresh_at;
                     $db['attempt_no'] = $attempt->attempt_no;
                     if ($attempt->retries_exhausted) {
