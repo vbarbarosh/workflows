@@ -8,6 +8,110 @@ main();
 
 function main(): void
 {
+    $lines = simulate([
+        'limit' => 100,
+        'tick' => function (callable $info, string $action, Carbon $now, array &$db, array &$jobs) {
+            refresh_retry([
+                'now' => $now,
+                'rrule' => 'RRULE:FREQ=DAILY;BYHOUR=6,16;BYMINUTE=0;BYSECOND=0',
+                'timeout' => 'PT10M',
+                'retry_intervals' => ['PT0M', 'PT5M', 'PT10M'],
+                'attempt_no' => $db['attempt_no'],
+                'action' => $action,
+                'fn' => function (RefreshAttempt $attempt) use ($info, &$db) {
+//            if ($attempt->retries_exhausted) {
+//                info('🚨 No more retries. Wait until next planned refresh.');
+//                $attempt->attempt_no = 0;
+//                $attempt->refresh_at = $attempt->scheduled_refresh_at;
+//            }
+                    $db['refresh_at'] = $attempt->refresh_at;
+                    $db['attempt_no'] = $attempt->attempt_no;
+                    if ($attempt->retries_exhausted) {
+                        $info('🚧 Refresh was disabled until the user reviewed the model settings/configuration');
+                        $info('📧 An email about the incident was sent to the user');
+                    }
+                },
+            ]);
+            if ($action === REFRESH_RETRY_START) {
+                $jobs[] = [
+                    'return_at' => $now->copy()->addMinutes(mt_rand(1, 5)),
+                    'action' => mt_rand(0, 100) > 60 ? REFRESH_RETRY_SUCCESS : REFRESH_RETRY_FAILURE,
+                ];
+            }
+        },
+    ]);
+    echo implode("\n", $lines), "\n";
+}
+
+function simulate(array $params): array
+{
+    $out = [];
+    $now = Carbon::create('2020/01/01 00:00:00');
+    $db = ['refresh_at' => null, 'attempt_no' => 0];
+    $jobs = [];
+
+    $info = function (string $message) use (&$now, &$out) {
+        $out[] = sprintf('[%s] %s', $now->format('Y-m-d H:i'), $message);
+    };
+
+    $tick = function (string $action) use ($params, $info, &$now, &$db, &$jobs) {
+        switch ($action) {
+        case REFRESH_RETRY_START:
+            if ($db['attempt_no'] === 0) {
+                $info('🚀 Refresh started');
+            }
+            else {
+                $info("🔄 Retry started #{$db['attempt_no']}");
+            }
+            break;
+        case REFRESH_RETRY_SUCCESS:
+            $info('✅ Success');
+            break;
+        case REFRESH_RETRY_FAILURE:
+            $info("❌ Failure ({$db['attempt_no']})");
+            break;
+        }
+        $params['tick']($info, $action, $now, $db, $jobs);
+    };
+
+    $tick(REFRESH_RETRY_START);
+
+    $limit = $params['limit'] ?? 100;
+    $iteration = 0;
+
+    while ($iteration++ < $limit) {
+        // $jobs = []; // Simulate sudden job process termination
+
+        // Find next event time
+        $next = array_filter([$db['refresh_at'], ...array_map(fn ($v) => $v['return_at'], $jobs)]);
+        if (empty($next)) {
+            $info('🚪 The end. Bye! 👋');
+            break;
+        }
+
+        usort($next, function (Carbon $a, Carbon $b) {
+            return $a->getTimestamp() <=> $b->getTimestamp();
+        });
+
+        $now = $next[0]->copy();
+
+        // Process jobs that are due
+        if (count($jobs) && $now->gte($jobs[0]['return_at'])) {
+            $job = array_shift($jobs);
+            $tick($job['action']);
+        }
+
+        // Process poll if refresh is due
+        if ($db['refresh_at'] && $now->gte($db['refresh_at'])) {
+            $tick(REFRESH_RETRY_START);
+        }
+    }
+
+    return $out;
+}
+
+function main1(): void
+{
     global $now, $db, $jobs;
 
     $db = ['refresh_at' => null, 'attempt_no' => 0];
@@ -77,7 +181,7 @@ function handle_start_success_failure(string $action): void
         'now' => $now,
         'rrule' => 'RRULE:FREQ=DAILY;BYHOUR=6,16;BYMINUTE=0;BYSECOND=0',
         'timeout' => 'PT10M',
-        'retry_intervals' => ['PT0M', 'PT1M', 'PT5M'], // , 'PT10M', 'PT15M'],
+        'retry_intervals' => ['PT0M', 'PT5M', 'PT10M'],
         'attempt_no' => $db['attempt_no'],
         'action' => $action,
         'fn' => function (RefreshAttempt $attempt) use (&$db) {
@@ -89,13 +193,8 @@ function handle_start_success_failure(string $action): void
             $db['refresh_at'] = $attempt->refresh_at;
             $db['attempt_no'] = $attempt->attempt_no;
             if ($attempt->retries_exhausted) {
-                info("⚠️🚨 Refresh was disabled until the user reviewed the model settings/configuration.");
-                info('📧 An email about the incident was sent to the user.');
-                $db['refresh_at'] = null;
-            }
-            else {
-                $db['refresh_at'] = $attempt->refresh_at;
-                $db['attempt_no'] = $attempt->attempt_no;
+                info('⚠️🚨 Refresh was disabled until the user reviewed the model settings/configuration');
+                info('📧 An email about the incident was sent to the user');
             }
         },
     ]);
