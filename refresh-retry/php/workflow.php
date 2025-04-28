@@ -189,6 +189,12 @@ function refresh_retry(array $params): void
     //     - retry number is greater than no of available retries
     //     -  `retries_exhausted = true`
 
+    // What to do when a start is requested with an attempt number greater than the
+    // number of retry intervals declared? This might indicate that the job process died
+    // prematurely.
+    // - Either retry one more time,
+    // - or ignore it.
+
     // REFRESH_RETRY_START
     // -------------------
     //
