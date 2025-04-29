@@ -6,6 +6,7 @@
     "autoload": {
         "files": [
             "workflow.php",
+            "simulate.php",
             "RefreshRetryStrategy.php"
         ]
     },
