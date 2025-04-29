@@ -9,7 +9,7 @@ main();
 function main(): void
 {
     $lines = simulate([
-        'limit' => 100,
+        'limit' => 200,
         'tick' => function (callable $info, string $action, Carbon $now, array &$db, array &$jobs) {
             refresh_retry([
                 'now' => $now,
@@ -18,15 +18,15 @@ function main(): void
                 'retry_intervals' => ['PT0M', 'PT5M', 'PT10M'],
                 'attempt_no' => $db['attempt_no'],
                 'action' => $action,
-                'fn' => function (RefreshAttempt $attempt) use ($info, &$db) {
-//                    if (time()) {
-//                        if ($attempt->retries_exhausted) {
-//                            $info('🚨 No more retries. Wait until next planned refresh.');
-//                            $db['refresh_at'] = $attempt->scheduled_refresh_at;
-//                            $db['attempt_no'] = 0;
-//                            return;
-//                        }
-//                    }
+                'fn' => function (RefreshAttempt $attempt) use ($info, &$db, $now) {
+                    if (time()) {
+                        if ($attempt->retries_exhausted) {
+                            $info('🚨 No more retries. Wait until next planned refresh.');
+                            $db['refresh_at'] = $attempt->scheduled_refresh_at;
+                            $db['attempt_no'] = 0;
+                            return;
+                        }
+                    }
                     $db['refresh_at'] = $attempt->refresh_at;
                     $db['attempt_no'] = $attempt->attempt_no;
                     if ($attempt->retries_exhausted) {
@@ -35,196 +35,30 @@ function main(): void
                     }
                 },
             ]);
+            if ($action === REFRESH_RETRY_FAILURE) {
+                if ($db['latest_success_at']->diffInWeeks($now) >= 1) {
+                    $db['refresh_at'] = null;
+                    $info('🚧 No successful refresh in over a week.');
+                    $info('🚧 Refresh was disabled until the user reviewed the model settings/configuration');
+                    $info('📧 An email about the incident was sent to the user');
+                    return;
+                }
+            }
             // Uncomment to simulate situations where the job process dies without
             // sending any event and no other timeout handler is configured.
 //            if (time()) {
 //                return;
 //            }
             if ($action === REFRESH_RETRY_START) {
+                if (empty($db['latest_success_at'])) {
+                    $db['latest_success_at'] = $now;
+                }
                 $jobs[] = [
                     'return_at' => $now->copy()->addMinutes(mt_rand(1, 5)),
-                    'action' => mt_rand(0, 100) > 60 ? REFRESH_RETRY_SUCCESS : REFRESH_RETRY_FAILURE,
+                    'action' => REFRESH_RETRY_FAILURE,
                 ];
             }
         },
     ]);
     echo implode("\n", $lines), "\n";
-}
-
-function simulate(array $params): array
-{
-    $out = [];
-    $now = Carbon::create('2020/01/01 00:00:00');
-    $db = ['refresh_at' => null, 'attempt_no' => 0];
-    $jobs = [];
-
-    $info = function (string $message) use (&$now, &$out) {
-        $out[] = sprintf('[%s] %s', $now->format('Y-m-d H:i'), $message);
-    };
-
-    $tick = function (string $action) use ($params, $info, &$now, &$db, &$jobs) {
-        switch ($action) {
-        case REFRESH_RETRY_START:
-            if ($db['attempt_no'] === 0) {
-                $info('🚀 Refresh started');
-            }
-            else {
-                $info("🔄 Retry started #{$db['attempt_no']}");
-            }
-            break;
-        case REFRESH_RETRY_SUCCESS:
-            $info('✅ Success');
-            break;
-        case REFRESH_RETRY_FAILURE:
-            $info("❌ Failure ({$db['attempt_no']})");
-            break;
-        }
-        $params['tick']($info, $action, $now, $db, $jobs);
-    };
-
-    $tick(REFRESH_RETRY_START);
-
-    $limit = $params['limit'] ?? 100;
-    $iteration = 0;
-
-    while ($iteration++ < $limit) {
-        // $jobs = []; // Simulate sudden job process termination
-
-        // Find next event time
-        $next = array_filter([$db['refresh_at'], ...array_map(fn ($v) => $v['return_at'], $jobs)]);
-        if (empty($next)) {
-            $info('🚪 The end. Bye! 👋');
-            break;
-        }
-
-        usort($next, function (Carbon $a, Carbon $b) {
-            return $a->getTimestamp() <=> $b->getTimestamp();
-        });
-
-        $now = $next[0]->copy();
-
-        // Process jobs that are due
-        if (count($jobs) && $now->gte($jobs[0]['return_at'])) {
-            $job = array_shift($jobs);
-            $tick($job['action']);
-        }
-
-        // Process poll if refresh is due
-        if ($db['refresh_at'] && $now->gte($db['refresh_at'])) {
-            $tick(REFRESH_RETRY_START);
-        }
-    }
-
-    return $out;
-}
-
-function main1(): void
-{
-    global $now, $db, $jobs;
-
-    $db = ['refresh_at' => null, 'attempt_no' => 0];
-    $jobs = [];
-    $now = Carbon::create('2020/01/01 00:00:00');
-
-    info('👨‍💻 Manual Start');
-    handle_start_success_failure(REFRESH_RETRY_START);
-
-    while (true) {
-        $jobs = []; // Simulate sudden job process termination.
-
-        $next = array_filter([$db['refresh_at'], ...array_map(fn ($v) => $v['return_at'], $jobs)]);
-        usort($next, function (Carbon $a, Carbon $b) {
-            return $a->getTimestamp() <=> $b->getTimestamp();
-        });
-        if (empty($next)) {
-            info('🚪 The end. Bye! 👋');
-            break;
-        }
-        $now = $next[0]->copy();
-        process_jobs();
-        process_poll();
-        info('💤');
-        sleep(1);
-    }
-}
-
-function info(string $s): void
-{
-    global $now;
-    echo sprintf("[%s] %s\n", $now->format('Y-m-d H:i'), $s);
-}
-
-function process_poll(): void
-{
-    global $now, $db;
-
-    if ($db['refresh_at'] === null || $now->lt($db['refresh_at'])) {
-        return;
-    }
-    handle_start_success_failure(REFRESH_RETRY_START);
-}
-
-function handle_start_success_failure(string $action): void
-{
-    global $now, $db, $jobs;
-
-    switch ($action) {
-    case REFRESH_RETRY_START:
-        if ($db['attempt_no'] === 0) {
-            info('🚀 Refresh started');
-        }
-        else {
-            info("🔄 Retry started #{$db['attempt_no']}");
-        }
-        break;
-    case REFRESH_RETRY_SUCCESS:
-        info('✅ Success');
-        break;
-    case REFRESH_RETRY_FAILURE:
-        info(sprintf('❌ Failure (%d)', $db['attempt_no']));
-        break;
-    }
-
-    refresh_retry([
-        'now' => $now,
-        'rrule' => 'RRULE:FREQ=DAILY;BYHOUR=6,16;BYMINUTE=0;BYSECOND=0',
-        'timeout' => 'PT10M',
-        'retry_intervals' => ['PT0M', 'PT5M', 'PT10M'],
-        'attempt_no' => $db['attempt_no'],
-        'action' => $action,
-        'fn' => function (RefreshAttempt $attempt) use (&$db) {
-//            if ($attempt->retries_exhausted) {
-//                info('⚠️ No more retries. Wait until next planned refresh.');
-//                $attempt->attempt_no = 0;
-//                $attempt->refresh_at = $attempt->scheduled_refresh_at;
-//            }
-            $db['refresh_at'] = $attempt->refresh_at;
-            $db['attempt_no'] = $attempt->attempt_no;
-            if ($attempt->retries_exhausted) {
-                info('⚠️🚨 Refresh was disabled until the user reviewed the model settings/configuration');
-                info('📧 An email about the incident was sent to the user');
-            }
-        },
-    ]);
-    if ($action !== REFRESH_RETRY_START) {
-        return;
-    }
-
-    $jobs[] = [
-        'return_at' => $now->copy()->addMinutes(mt_rand(1, 5)),
-        'action' => mt_rand(0, 100) > 60 ? REFRESH_RETRY_SUCCESS : REFRESH_RETRY_FAILURE,
-    ];
-}
-
-function process_jobs(): void
-{
-    global $now, $jobs;
-
-    if (empty($jobs)) {
-        return;
-    }
-
-    if ($now->gte($jobs[0]['return_at'])) {
-        handle_start_success_failure(array_shift($jobs)['action']);
-    }
 }
