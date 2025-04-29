@@ -10,7 +10,7 @@ function simulate(array $params): array
     $jobs = [];
 
     $info = function (string $message) use (&$now, &$out) {
-        $out[] = sprintf('[%s] %s', $now->format('Y-m-d H:i'), $message);
+        $out[] = sprintf('[%d][%s] %s', count($out) + 1, $now->format('Y-m-d H:i'), $message);
     };
 
     $tick = function (string $action) use ($params, $info, &$now, &$db, &$jobs) {
