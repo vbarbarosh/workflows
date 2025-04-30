@@ -32,20 +32,6 @@ class RetryStrategy
         return $planned_start;
     }
 
-//    /**
-//     * Strategy 3: retry_until_planned
-//     * In case of failure, perform retries but stop when next retry
-//     * can complete after next scheduled refresh.
-//     * Each scheduled refresh is treated as a new base attempt (attempt_no = 0).
-//     */
-//    public static function retry_until_planned(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
-//    {
-//        if ($retry_start->lt($planned_start)) {
-//            return $retry_start;
-//        }
-//        return $planned_start;
-//    }
-
     /**
      * Strategy 3: retry_between_planned
      * In case of failure, perform retries as many as possible, until next scheduled refresh.
