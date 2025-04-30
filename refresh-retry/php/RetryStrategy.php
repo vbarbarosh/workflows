@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 
-class RefreshRetryStrategy
+class RetryStrategy
 {
     /**
      * Strategy 1: retry_until_success

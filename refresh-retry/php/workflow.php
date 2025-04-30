@@ -261,14 +261,14 @@ function refresh_retry(array $params): void
     switch ($action) {
     case REFRESH_RETRY_START:
         $refresh_at = $retry_at
-            ? RefreshRetryStrategy::retry_align_planned($retry_at, $scheduled_refresh2_at, $timeout)
+            ? RetryStrategy::retry_align_planned($retry_at, $scheduled_refresh2_at, $timeout)
             : $scheduled_refresh2_at;
         break;
     case REFRESH_RETRY_SUCCESS:
         $refresh_at = $scheduled_refresh_at;
         break;
     case REFRESH_RETRY_FAILURE:
-        $refresh_at = RefreshRetryStrategy::retry_align_planned($retry_at, $scheduled_refresh_at, $timeout);
+        $refresh_at = RetryStrategy::retry_align_planned($retry_at, $scheduled_refresh_at, $timeout);
         break;
     }
 

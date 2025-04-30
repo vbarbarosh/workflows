@@ -7,7 +7,7 @@
         "files": [
             "workflow.php",
             "simulate.php",
-            "RefreshRetryStrategy.php"
+            "RetryStrategy.php"
         ]
     },
     "require-dev": {
