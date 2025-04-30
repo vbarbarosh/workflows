@@ -9,6 +9,7 @@ const REFRESH_RETRY_FAILURE = 'failure';
 
 class RefreshAttempt
 {
+    // TODO Rename scheduled_refresh_at → planned_at
     public ?Carbon $scheduled_refresh_at = null;
     public ?Carbon $retry_at = null;
 
@@ -48,6 +49,12 @@ class RefreshAttempt
  *   - $timeout | Expected time to complete the refresh process. | A valid, non-inverted, non-zero DateInterval expression (or null for the default 10-minute timeout).
  *   - $attempt_no | Current attempt number. | Non-negative integer.
  *   - $retry_intervals | List of backoff retry delays. | An array (or null) of DateInterval expressions (empty for immediate retry).
+ *   - $retry_strategy | Either a `function (?Carbon $retry_at, ?Carbon $planned_at, DateInterval $timeout): ?Carbon`
+ *     which should return a time for the next retry attempt, or one of:
+ *         - retry_align_planned DEFAULT
+ *         - retry_at
+ *         - planned_at
+ *         - whichever_first
  *   - $action | One of: start, success, failure.
  *   - $fn | A function to save refresh_at, deadline_at, and attempt_no | A Callable which the following signature: function (RefreshAttempt $attempt) { ... }
  *
