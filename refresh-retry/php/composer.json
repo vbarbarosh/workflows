@@ -6,8 +6,7 @@
     "autoload": {
         "files": [
             "workflow.php",
-            "simulate.php",
-            "RetryStrategy.php"
+            "simulate.php"
         ]
     },
     "require-dev": {
