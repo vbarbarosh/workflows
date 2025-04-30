@@ -30,11 +30,11 @@ class RefreshAttempt
 }
 
 /**
- * A workflow for refreshing models with retry support.
+ * A workflow for refreshing models with support for retry.
  *
  * The minimum number of variables:
  *   - refresh_at: when to start the next refresh
- *   - deadline_at: when to fail the current refresh due to a timeout
+ *   - deadline_at: when to fail the current refresh process due to a timeout
  *   - attempt_no: increases with each new refresh and resets only on success
  *
  * Transitions diagram:
