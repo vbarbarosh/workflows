@@ -5,55 +5,55 @@ use Carbon\Carbon;
 class RetryStrategy
 {
     /**
-     * Strategy 1: retry_until_success
-     * In case of failure, perform retries until success.
-     * Scheduled refresh could follow only after a successful attempt.
+     * Strategy 1: retry_align_planned
+     * In case of failure, perform retries but prefer the next scheduled
+     * refresh if it comes before the next retry, or if the next retry can
+     * complete before the next scheduled refresh.
      */
-    public static function retry_until_success(?Carbon $retry_start): ?Carbon
+    public static function retry_align_planned(?Carbon $retry_at, ?Carbon $planned_at, DateInterval $timeout): ?Carbon
     {
-        return $retry_start;
+        if (!$retry_at || !$planned_at) {
+            return $retry_at;
+        }
+        $retry_end = $retry_at->copy()->add($timeout);
+        if ($retry_end->lt($planned_at)) {
+            return $retry_at;
+        }
+        return $planned_at;
     }
 
     /**
-     * Strategy 2: retry_at_planned_time
+     * Strategy 1: retry_at
+     * In case of failure, perform retries until success.
+     * Scheduled refresh could follow only after a successful attempt.
+     */
+    public static function retry_at(?Carbon $retry_at): ?Carbon
+    {
+        return $retry_at;
+    }
+
+    /**
+     * Strategy 2: planned_at
      * Each attempt should perform at scheduled time.
      */
-    public static function retry_at_planned_time(?Carbon $retry_start, ?Carbon $planned_start): ?Carbon
+    public static function planned_at(?Carbon $retry_start, ?Carbon $planned_at): ?Carbon
     {
-        return $planned_start;
+        return $planned_at;
     }
 
     /**
      * Strategy 3: whichever_first
-     * In case of failure, prefer scheduled refresh if it comes before next retry.
+     * In case of failure, prefer scheduled refresh if it comes before the next retry.
      */
-    public static function whichever_first(?Carbon $retry_start, ?Carbon $planned_start): ?Carbon
+    public static function whichever_first(?Carbon $retry_at, ?Carbon $planned_at): ?Carbon
     {
-        if ($retry_start === null) {
-            return $planned_start;
+        if ($retry_at === null) {
+            return $planned_at;
         }
-        if ($planned_start === null) {
-            return $retry_start;
+        if ($planned_at === null) {
+            return $retry_at;
         }
-        return $retry_start->lt($planned_start) ? $retry_start : $planned_start;
-    }
-
-    /**
-     * Strategy 4: retry_align_planned
-     * In case of failure, perform retries but prefer next scheduled
-     * refresh if it comes before next retry, or if next retry can
-     * complete before next scheduled refresh.
-     */
-    public static function retry_align_planned(?Carbon $retry_start, ?Carbon $planned_start, DateInterval $timeout): ?Carbon
-    {
-        if (!$retry_start || !$planned_start) {
-            return $retry_start;
-        }
-        $retry_end = $retry_start->copy()->add($timeout);
-        if ($retry_end->lt($planned_start)) {
-            return $retry_start;
-        }
-        return $planned_start;
+        return $retry_at->lt($planned_at) ? $retry_at : $planned_at;
     }
 
 //    /**
