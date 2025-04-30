@@ -38,8 +38,9 @@ class RefreshAttempt
  *   - attempt_no: increases with each new refresh and resets only on success
  *
  * Transitions diagram:
- *   start → success|failure,
- *   failure → success|retries_exhausted
+ *   start → success|failure|retries_exhausted
+ *   success → start
+ *   failure → start|retries_exhausted
  *
  * Parameters:
  *   - $now | A reference time to calculate the next refresh and deadline periods. | Instance of Carbon (or null to use the current time).
