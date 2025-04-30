@@ -305,7 +305,7 @@ function refresh_retry(array $params): void
     // Calculate next retry
     switch ($action) {
     case REFRESH_RETRY_START:
-        // 🧩 Edge case: Request to start after last retry was already performed
+        // 🧩 Edge case: Request to start after the last retry was already performed
         $retries_exhausted = $retry_no >= count($retry_intervals);
         if ($retries_exhausted) {
             $retry_at = null;
