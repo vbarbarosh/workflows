@@ -9,8 +9,7 @@ const REFRESH_RETRY_FAILURE = 'failure';
 
 class RefreshAttempt
 {
-    // TODO Rename scheduled_refresh_at → planned_at
-    public ?Carbon $scheduled_refresh_at = null;
+    public ?Carbon $planned_at = null;
     public ?Carbon $retry_at = null;
 
     public ?Carbon $refresh_at;
@@ -20,7 +19,7 @@ class RefreshAttempt
 
     public function __construct($params)
     {
-        $this->scheduled_refresh_at = $params['scheduled_refresh_at'];
+        $this->planned_at = $params['planned_at'];
         $this->retry_at = $params['retry_at'];
 
         $this->refresh_at = $params['refresh_at'];
@@ -34,9 +33,9 @@ class RetryStrategy
 {
     /**
      * Strategy 1: retry_align_planned
-     * In case of failure, perform retries but prefer the next scheduled
+     * In case of failure, perform retries but prefer the next planned
      * refresh if it comes before the next retry, or if the next retry can
-     * complete before the next scheduled refresh.
+     * complete before the next planned refresh.
      */
     public static function retry_align_planned(?Carbon $retry_at, ?Carbon $planned_at, DateInterval $timeout): ?Carbon
     {
@@ -53,7 +52,7 @@ class RetryStrategy
     /**
      * Strategy 1: retry_at
      * In case of failure, perform retries until success.
-     * Scheduled refresh could follow only after a successful attempt.
+     * Planned refresh could follow only after a successful attempt.
      */
     public static function retry_at(?Carbon $retry_at): ?Carbon
     {
@@ -62,7 +61,7 @@ class RetryStrategy
 
     /**
      * Strategy 2: planned_at
-     * Each attempt should perform at scheduled time.
+     * Each attempt should perform at planned time.
      */
     public static function planned_at(?Carbon $retry_start, ?Carbon $planned_at): ?Carbon
     {
@@ -71,7 +70,7 @@ class RetryStrategy
 
     /**
      * Strategy 3: whichever_first
-     * In case of failure, prefer scheduled refresh if it comes before the next retry.
+     * In case of failure, prefer planned refresh if it comes before the next retry.
      */
     public static function whichever_first(?Carbon $retry_at, ?Carbon $planned_at): ?Carbon
     {
@@ -86,8 +85,8 @@ class RetryStrategy
 
 //    /**
 //     * Strategy 5: retry_between_planned
-//     * In case of failure, perform retries as many as possible, until next scheduled refresh.
-//     * Each scheduled refresh is treated as a new base attempt (attempt_no = 0).
+//     * In case of failure, perform retries as many as possible, until the next planned refresh.
+//     * Each planned refresh is treated as a new base attempt (attempt_no = 0).
 //     */
 //    public static function retry_between_planned(Carbon $retry_start, Carbon $retry_end, Carbon $planned_start, Carbon $planned_end): Carbon
 //    {
@@ -233,10 +232,10 @@ function refresh_retry(array $params): void
 
     $deadline_at = $now->copy()->add($timeout);
 
-    // Calculate the next scheduled refresh, and the next scheduled refresh for
+    // Calculate the next planned refresh, and the next planned refresh for
     // the worst-case scenario (when the job died and no success or failure message was sent)
-    $scheduled_refresh_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
-    $scheduled_refresh2_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
+    $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
+    $planned2_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
 
     // ⚠️ retries_exhausted → retry_at IS NULL, refresh_at IS NULL
     // ⚠️ retries_exhausted → we did our best, no more attempts to refresh
@@ -336,14 +335,14 @@ function refresh_retry(array $params): void
     switch ($action) {
     case REFRESH_RETRY_START:
         $refresh_at = $retry_at
-            ? RetryStrategy::retry_align_planned($retry_at, $scheduled_refresh2_at, $timeout)
-            : $scheduled_refresh2_at;
+            ? RetryStrategy::retry_align_planned($retry_at, $planned2_at, $timeout)
+            : $planned2_at;
         break;
     case REFRESH_RETRY_SUCCESS:
-        $refresh_at = $scheduled_refresh_at;
+        $refresh_at = $planned_at;
         break;
     case REFRESH_RETRY_FAILURE:
-        $refresh_at = RetryStrategy::retry_align_planned($retry_at, $scheduled_refresh_at, $timeout);
+        $refresh_at = RetryStrategy::retry_align_planned($retry_at, $planned_at, $timeout);
         break;
     }
 
@@ -354,7 +353,7 @@ function refresh_retry(array $params): void
     switch ($action) {
     case REFRESH_RETRY_START:
         call_user_func($fn, new RefreshAttempt([
-            'scheduled_refresh_at' => $scheduled_refresh_at,
+            'planned_at' => $planned_at,
             'retry_at' => $retry_at,
             'refresh_at' => $refresh_at, // Next refresh_at after the current refresh times out.
             'deadline_at' => $deadline_at,
@@ -364,7 +363,7 @@ function refresh_retry(array $params): void
         break;
     case REFRESH_RETRY_SUCCESS:
         call_user_func($fn, new RefreshAttempt([
-            'scheduled_refresh_at' => $scheduled_refresh_at,
+            'planned_at' => $planned_at,
             'retry_at' => $retry_at,
             'refresh_at' => $refresh_at,
             'deadline_at' => null,
@@ -374,7 +373,7 @@ function refresh_retry(array $params): void
         break;
     case REFRESH_RETRY_FAILURE:
         call_user_func($fn, new RefreshAttempt([
-            'scheduled_refresh_at' => $scheduled_refresh_at,
+            'planned_at' => $planned_at,
             'retry_at' => $retry_at,
             'refresh_at' => $refresh_at,
             'deadline_at' => null,

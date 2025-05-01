@@ -33,7 +33,7 @@ function main(): void
                 'fn' => function (RefreshAttempt $attempt) use ($info, &$db, $now, &$retries_exhausted) {
                     if ($attempt->retries_exhausted) {
                         $info('🚨 No more retries. Wait until next planned refresh.');
-                        $db['refresh_at'] = $attempt->scheduled_refresh_at;
+                        $db['refresh_at'] = $attempt->planned_at;
                         $db['attempt_no'] = 0;
                     }
                     else {
