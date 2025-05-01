@@ -12,7 +12,17 @@ function main(): void
     $lines = simulate([
         'limit' => 1000,
         'tick' => function (callable $info, string $action, Carbon $now, array &$db, array &$jobs) {
-            $original_attempt_no = $db['attempt_no'];
+            $db['latest_success_at'] ??= $now;
+            if ($db['latest_success_at']->diffInWeeks($now) >= 1) {
+                if ($action !== REFRESH_RETRY_SUCCESS && $db['attempt_no'] !== 0) {
+                    // 🏳️ Give up
+                    $db['refresh_at'] = null;
+                    $info('🚧 Not a single successful refresh in over a week');
+                    $info('🚧 Refresh disabled until the user reviews the model settings/configuration');
+                    $info('📧 An email about the incident was sent to the user');
+                    return;
+                }
+            }
             refresh_retry([
                 'now' => $now,
                 'rrule' => 'RRULE:FREQ=DAILY;BYHOUR=6,16;BYMINUTE=0;BYSECOND=0',
@@ -32,23 +42,6 @@ function main(): void
                     }
                 },
             ]);
-            $db['latest_success_at'] ??= $now;
-            if ($action === REFRESH_RETRY_SUCCESS) {
-                $db['latest_success_at'] = $now;
-                return;
-            }
-            if ($db['latest_success_at']->diffInWeeks($now) >= 1) {
-                if ($action === REFRESH_RETRY_START && $original_attempt_no === 0) {
-                    // Manual start below
-                }
-                else {
-                    // 🏳️ Give up
-                    $db['refresh_at'] = null;
-                    $info('🚧 Not a single successful refresh in over a week');
-                    $info('🚧 Refresh disabled until the user reviews the model settings/configuration');
-                    $info('📧 An email about the incident was sent to the user');
-                }
-            }
             if ($action === REFRESH_RETRY_START) {
                 // Start
             }
