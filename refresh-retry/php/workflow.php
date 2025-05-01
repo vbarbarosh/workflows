@@ -300,12 +300,12 @@ function refresh_retry(array $params): void
     //     this is an exception, no refresh should be started! ⚠️
 
     $retry_no = $attempt_no - 1;
+    $retries_exhausted = $retry_no >= count($retry_intervals);
 
     // Calculate next retry
     switch ($action) {
     case REFRESH_RETRY_START:
         // 🧩 Edge case: Request to start after the last retry was already performed
-        $retries_exhausted = $retry_no >= count($retry_intervals);
         if ($retries_exhausted) {
             $retry_at = null;
         }
@@ -317,13 +317,11 @@ function refresh_retry(array $params): void
         }
         break;
     case REFRESH_RETRY_FAILURE:
-        if ($retry_no >= count($retry_intervals)) {
+        if ($retries_exhausted) {
             $retry_at = null;
-            $retries_exhausted = true;
             break;
         }
         $retry_at = empty($retry_intervals[$retry_no]) ? $now : $now->copy()->add(new DateInterval($retry_intervals[$retry_no] ?: 'PT0M'));
-        $retries_exhausted = false;
         break;
     case REFRESH_RETRY_SUCCESS:
         $retry_at = null;
@@ -347,6 +345,7 @@ function refresh_retry(array $params): void
     }
 
     if ($retries_exhausted) {
+        $retry_at = null;
         $refresh_at = null;
     }
 
