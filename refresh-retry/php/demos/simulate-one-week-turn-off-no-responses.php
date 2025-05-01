@@ -14,7 +14,7 @@ function main(): void
         'tick' => function (callable $info, string $action, Carbon $now, array &$db, array &$jobs) {
             $db['latest_success_at'] ??= $now;
             if ($db['latest_success_at']->diffInWeeks($now) >= 1) {
-                if ($action !== REFRESH_RETRY_SUCCESS && $db['attempt_no'] !== 0) {
+                if ($action !== REFRESH_RETRY_SUCCESS) {
                     // 🏳️ Give up
                     $db['refresh_at'] = null;
                     $info('🚧 Not a single successful refresh in over a week');
@@ -42,8 +42,13 @@ function main(): void
                     }
                 },
             ]);
-            if ($action === REFRESH_RETRY_START) {
+            switch ($action) {
+            case REFRESH_RETRY_SUCCESS:
+                $db['latest_success_at'] = $now;
+                break;
+            case REFRESH_RETRY_START:
                 // Start
+                break;
             }
         },
     ]);
