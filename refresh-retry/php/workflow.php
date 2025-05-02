@@ -329,6 +329,12 @@ function refresh_retry(array $params): void
         break;
     }
 
+    // 1. Calculate the next planned refresh time
+    // 2. Calculate the next retry time
+    // 3. Choose one based on the alignment strategy
+    //    (if it's important to stick to the planned time,
+    //    prefer it; otherwise, use the next retry time)
+
     // Choose when the next refresh should start.
     switch ($action) {
     case REFRESH_RETRY_START:
