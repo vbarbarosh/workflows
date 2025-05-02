@@ -29,7 +29,7 @@ class RefreshAttempt
     }
 }
 
-class RetryStrategy
+class RefreshAlignment
 {
     /**
      * Strategy 1: retry_align_planned
@@ -335,18 +335,20 @@ function refresh_retry(array $params): void
     //    (if it's important to stick to the planned time,
     //    prefer it; otherwise, use the next retry time)
 
-    // Choose when the next refresh should start.
+    // Choose when the next refresh should start (i.e., whether sticking
+    // to the planned time is important, prioritizing the retry time, or
+    // whichever comes first)
     switch ($action) {
     case REFRESH_RETRY_START:
         $refresh_at = $retry_at
-            ? RetryStrategy::retry_align_planned($retry_at, $planned2_at, $timeout)
+            ? RefreshAlignment::retry_align_planned($retry_at, $planned2_at, $timeout)
             : $planned2_at;
         break;
     case REFRESH_RETRY_SUCCESS:
         $refresh_at = $planned_at;
         break;
     case REFRESH_RETRY_FAILURE:
-        $refresh_at = RetryStrategy::retry_align_planned($retry_at, $planned_at, $timeout);
+        $refresh_at = RefreshAlignment::retry_align_planned($retry_at, $planned_at, $timeout);
         break;
     }
 
