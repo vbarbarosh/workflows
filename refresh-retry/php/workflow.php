@@ -230,6 +230,75 @@ function refresh_retry(array $params): void
         throw new InvalidArgumentException("Invalid parameters: $keys");
     }
 
+    if ($action === REFRESH_RETRY_SUCCESS) {
+        $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
+        call_user_func($fn, new RefreshAttempt([
+            'planned_at' => $planned_at,
+            'retry_at' => null,
+            'refresh_at' => $planned_at,
+            'deadline_at' => null,
+            'attempt_no' => 0,
+            'retries_exhausted' => false,
+        ]));
+        return;
+    }
+
+    if ($action === REFRESH_RETRY_FAILURE) {
+        $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
+        $retry_no = $attempt_no - 1;
+        if ($retry_no >= count($retry_intervals)) {
+            $retry_at = null;
+            $retries_exhausted = true;
+        }
+        else {
+            $retry_at = empty($retry_intervals[$retry_no]) ? $now : $now->copy()->add(new DateInterval($retry_intervals[$retry_no] ?: 'PT0M'));
+            $retries_exhausted = false;
+        }
+        call_user_func($fn, new RefreshAttempt([
+            'planned_at' => $planned_at,
+            'retry_at' => $retry_at,
+            'refresh_at' => RefreshAlignment::retry_align_planned($retry_at, $planned_at, $timeout),
+            'deadline_at' => null,
+            'attempt_no' => $attempt_no,
+            'retries_exhausted' => $retries_exhausted,
+        ]));
+        return;
+    }
+
+    if ($action === REFRESH_RETRY_START) {
+        $deadline_at = $now->copy()->add($timeout);
+        $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));;
+        $planned2_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
+        $retry_no = $attempt_no - 1;
+        $retries_exhausted = $retry_no >= count($retry_intervals);
+
+        // 🧩 Edge case: Request to start after the last retry was already performed
+        if ($retries_exhausted) {
+            $retry_at = null;
+            $refresh_at = null;
+        }
+        else if (($retry_no + 1) >= count($retry_intervals)) {
+            $retry_at = null;
+            $refresh_at = $planned2_at;
+        }
+        else {
+            $retry_at = $now->copy()->add($timeout)->add(new DateInterval($retry_intervals[$retry_no + 1] ?? 0 ?: 'PT0M'));
+            $refresh_at = RefreshAlignment::retry_align_planned($retry_at, $planned2_at, $timeout);
+        }
+
+        call_user_func($fn, new RefreshAttempt([
+            'planned_at' => $planned_at,
+            'retry_at' => empty($retry_at) ? $planned2_at : RefreshAlignment::retry_align_planned($retry_at, $planned2_at, $timeout),
+            'refresh_at' => $refresh_at, // Next refresh_at after the current refresh times out.
+            'deadline_at' => $deadline_at,
+            'attempt_no' => $attempt_no + 1,
+            'retries_exhausted' => $retries_exhausted,
+        ]));
+        return;
+    }
+
+    throw new RuntimeException('Oops');
+
     $deadline_at = $now->copy()->add($timeout);
 
     // Calculate the next planned refresh, and the next planned refresh for
