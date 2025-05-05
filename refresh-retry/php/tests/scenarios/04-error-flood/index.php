@@ -2,13 +2,15 @@
 
 use Carbon\Carbon;
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 main();
 
-// Total Failure Path
+// Error Flood – scenario with 75% errors
 function main(): void
 {
+    mt_srand(1753671816);
+
     $lines = simulate([
         'limit' => 100,
         'tick' => function (callable $info, string $action, Carbon $now, array &$db, array &$jobs) {
@@ -31,7 +33,7 @@ function main(): void
             if ($action === REFRESH_RETRY_START) {
                 $jobs[] = [
                     'return_at' => $now->copy()->addMinutes(mt_rand(1, 5)),
-                    'action' => REFRESH_RETRY_FAILURE,
+                    'action' => mt_rand(1, 100) <= 75 ? REFRESH_RETRY_FAILURE : REFRESH_RETRY_SUCCESS,
                 ];
             }
         },

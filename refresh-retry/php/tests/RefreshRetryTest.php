@@ -6,6 +6,24 @@ use PHPUnit\Framework\TestCase;
 
 final class RefreshRetryTest extends TestCase
 {
+    public static function static_tests_provider(): array
+    {
+        $out = [];
+        foreach (glob(__DIR__.'/scenarios/*') as $dir) {
+            $script = "$dir/index.php";
+            $stdout = file_get_contents("$dir/stdout.txt");
+            $out[] = [$script, $stdout];
+        }
+        return $out;
+    }
+
+    #[Test] #[\PHPUnit\Framework\Attributes\DataProvider('static_tests_provider')]
+    public function static_tests(string $script, string $stdout): void
+    {
+        $actual = shell_exec("php $script");
+        $this->assertEquals($stdout, $actual);
+    }
+
     #[Test] // Should throw "$rrule must be a valid RRULE expression or null"
     public function should_throw___rrule_must_be_a_valid_rrule_expression_or_null(): void
     {

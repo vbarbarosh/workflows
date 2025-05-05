@@ -1,0 +1,11 @@
+[1][2020-01-01 00:00] 🚀 Refresh started
+[2][2020-01-01 00:01] ❌ Failure (1)
+[3][2020-01-01 00:01] 🔄 Retry started #1
+[4][2020-01-01 00:03] ❌ Failure (2)
+[5][2020-01-01 00:08] 🔄 Retry started #2
+[6][2020-01-01 00:09] ❌ Failure (3)
+[7][2020-01-01 00:19] 🔄 Retry started #3
+[8][2020-01-01 00:23] ❌ Failure (4)
+[9][2020-01-01 00:23] 🚧 Refresh was disabled until the user reviewed the model settings/configuration
+[10][2020-01-01 00:23] 📧 An email about the incident was sent to the user
+[11][2020-01-01 00:23] 🚪 The end. Bye! 👋

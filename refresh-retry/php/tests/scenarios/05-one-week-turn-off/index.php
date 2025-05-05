@@ -2,13 +2,15 @@
 
 use Carbon\Carbon;
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 main();
 
 // One-Week Turn-Off – stop refreshing after a week of unsuccessful attempts
 function main(): void
 {
+    mt_srand(12345);
+
     $lines = simulate([
         'limit' => 10000,
         'tick' => function (callable $info, string $action, Carbon $now, array &$db, array &$jobs) {

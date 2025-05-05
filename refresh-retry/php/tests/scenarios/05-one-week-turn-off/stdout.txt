@@ -1,0 +1,394 @@
+[1][2020-01-01 00:00] 🚀 Refresh started
+[2][2020-01-01 00:01] ❌ Failure (1)
+[3][2020-01-01 00:01] 🔄 Retry started #1
+[4][2020-01-01 00:02] ❌ Failure (2)
+[5][2020-01-01 00:07] 🔄 Retry started #2
+[6][2020-01-01 00:12] ❌ Failure (3)
+[7][2020-01-01 00:22] 🔄 Retry started #3
+[8][2020-01-01 00:23] ❌ Failure (4)
+[9][2020-01-01 00:23] 🚨 No more retries. Wait until next planned refresh.
+[10][2020-01-01 06:00] 🚀 Refresh started
+[11][2020-01-01 06:02] ❌ Failure (1)
+[12][2020-01-01 06:02] 🔄 Retry started #1
+[13][2020-01-01 06:04] ❌ Failure (2)
+[14][2020-01-01 06:09] 🔄 Retry started #2
+[15][2020-01-01 06:11] ❌ Failure (3)
+[16][2020-01-01 06:21] 🔄 Retry started #3
+[17][2020-01-01 06:24] ❌ Failure (4)
+[18][2020-01-01 06:24] 🚨 No more retries. Wait until next planned refresh.
+[19][2020-01-01 16:00] 🚀 Refresh started
+[20][2020-01-01 16:04] ❌ Failure (1)
+[21][2020-01-01 16:04] 🔄 Retry started #1
+[22][2020-01-01 16:09] ❌ Failure (2)
+[23][2020-01-01 16:14] 🔄 Retry started #2
+[24][2020-01-01 16:15] ❌ Failure (3)
+[25][2020-01-01 16:25] 🔄 Retry started #3
+[26][2020-01-01 16:27] ❌ Failure (4)
+[27][2020-01-01 16:27] 🚨 No more retries. Wait until next planned refresh.
+[28][2020-01-02 06:00] 🚀 Refresh started
+[29][2020-01-02 06:05] ❌ Failure (1)
+[30][2020-01-02 06:05] 🔄 Retry started #1
+[31][2020-01-02 06:07] ❌ Failure (2)
+[32][2020-01-02 06:12] 🔄 Retry started #2
+[33][2020-01-02 06:15] ✅ Success
+[34][2020-01-02 16:00] 🚀 Refresh started
+[35][2020-01-02 16:01] ❌ Failure (1)
+[36][2020-01-02 16:01] 🔄 Retry started #1
+[37][2020-01-02 16:05] ❌ Failure (2)
+[38][2020-01-02 16:10] 🔄 Retry started #2
+[39][2020-01-02 16:13] ❌ Failure (3)
+[40][2020-01-02 16:23] 🔄 Retry started #3
+[41][2020-01-02 16:26] ❌ Failure (4)
+[42][2020-01-02 16:26] 🚨 No more retries. Wait until next planned refresh.
+[43][2020-01-03 06:00] 🚀 Refresh started
+[44][2020-01-03 06:03] ❌ Failure (1)
+[45][2020-01-03 06:03] 🔄 Retry started #1
+[46][2020-01-03 06:08] ❌ Failure (2)
+[47][2020-01-03 06:13] 🔄 Retry started #2
+[48][2020-01-03 06:17] ❌ Failure (3)
+[49][2020-01-03 06:27] 🔄 Retry started #3
+[50][2020-01-03 06:28] ❌ Failure (4)
+[51][2020-01-03 06:28] 🚨 No more retries. Wait until next planned refresh.
+[52][2020-01-03 16:00] 🚀 Refresh started
+[53][2020-01-03 16:04] ❌ Failure (1)
+[54][2020-01-03 16:04] 🔄 Retry started #1
+[55][2020-01-03 16:05] ❌ Failure (2)
+[56][2020-01-03 16:10] 🔄 Retry started #2
+[57][2020-01-03 16:12] ❌ Failure (3)
+[58][2020-01-03 16:22] 🔄 Retry started #3
+[59][2020-01-03 16:25] ❌ Failure (4)
+[60][2020-01-03 16:25] 🚨 No more retries. Wait until next planned refresh.
+[61][2020-01-04 06:00] 🚀 Refresh started
+[62][2020-01-04 06:04] ❌ Failure (1)
+[63][2020-01-04 06:04] 🔄 Retry started #1
+[64][2020-01-04 06:09] ❌ Failure (2)
+[65][2020-01-04 06:14] 🔄 Retry started #2
+[66][2020-01-04 06:15] ❌ Failure (3)
+[67][2020-01-04 06:25] 🔄 Retry started #3
+[68][2020-01-04 06:27] ❌ Failure (4)
+[69][2020-01-04 06:27] 🚨 No more retries. Wait until next planned refresh.
+[70][2020-01-04 16:00] 🚀 Refresh started
+[71][2020-01-04 16:03] ❌ Failure (1)
+[72][2020-01-04 16:03] 🔄 Retry started #1
+[73][2020-01-04 16:06] ❌ Failure (2)
+[74][2020-01-04 16:11] 🔄 Retry started #2
+[75][2020-01-04 16:12] ❌ Failure (3)
+[76][2020-01-04 16:22] 🔄 Retry started #3
+[77][2020-01-04 16:24] ❌ Failure (4)
+[78][2020-01-04 16:24] 🚨 No more retries. Wait until next planned refresh.
+[79][2020-01-05 06:00] 🚀 Refresh started
+[80][2020-01-05 06:02] ❌ Failure (1)
+[81][2020-01-05 06:02] 🔄 Retry started #1
+[82][2020-01-05 06:07] ❌ Failure (2)
+[83][2020-01-05 06:12] 🔄 Retry started #2
+[84][2020-01-05 06:15] ❌ Failure (3)
+[85][2020-01-05 06:25] 🔄 Retry started #3
+[86][2020-01-05 06:30] ❌ Failure (4)
+[87][2020-01-05 06:30] 🚨 No more retries. Wait until next planned refresh.
+[88][2020-01-05 16:00] 🚀 Refresh started
+[89][2020-01-05 16:02] ❌ Failure (1)
+[90][2020-01-05 16:02] 🔄 Retry started #1
+[91][2020-01-05 16:05] ❌ Failure (2)
+[92][2020-01-05 16:10] 🔄 Retry started #2
+[93][2020-01-05 16:12] ❌ Failure (3)
+[94][2020-01-05 16:22] 🔄 Retry started #3
+[95][2020-01-05 16:23] ❌ Failure (4)
+[96][2020-01-05 16:23] 🚨 No more retries. Wait until next planned refresh.
+[97][2020-01-06 06:00] 🚀 Refresh started
+[98][2020-01-06 06:05] ❌ Failure (1)
+[99][2020-01-06 06:05] 🔄 Retry started #1
+[100][2020-01-06 06:06] ❌ Failure (2)
+[101][2020-01-06 06:11] 🔄 Retry started #2
+[102][2020-01-06 06:16] ❌ Failure (3)
+[103][2020-01-06 06:26] 🔄 Retry started #3
+[104][2020-01-06 06:29] ✅ Success
+[105][2020-01-06 16:00] 🚀 Refresh started
+[106][2020-01-06 16:02] ❌ Failure (1)
+[107][2020-01-06 16:02] 🔄 Retry started #1
+[108][2020-01-06 16:04] ❌ Failure (2)
+[109][2020-01-06 16:09] 🔄 Retry started #2
+[110][2020-01-06 16:13] ❌ Failure (3)
+[111][2020-01-06 16:23] 🔄 Retry started #3
+[112][2020-01-06 16:27] ❌ Failure (4)
+[113][2020-01-06 16:27] 🚨 No more retries. Wait until next planned refresh.
+[114][2020-01-07 06:00] 🚀 Refresh started
+[115][2020-01-07 06:01] ❌ Failure (1)
+[116][2020-01-07 06:01] 🔄 Retry started #1
+[117][2020-01-07 06:06] ❌ Failure (2)
+[118][2020-01-07 06:11] 🔄 Retry started #2
+[119][2020-01-07 06:16] ❌ Failure (3)
+[120][2020-01-07 06:26] 🔄 Retry started #3
+[121][2020-01-07 06:27] ❌ Failure (4)
+[122][2020-01-07 06:27] 🚨 No more retries. Wait until next planned refresh.
+[123][2020-01-07 16:00] 🚀 Refresh started
+[124][2020-01-07 16:02] ❌ Failure (1)
+[125][2020-01-07 16:02] 🔄 Retry started #1
+[126][2020-01-07 16:06] ❌ Failure (2)
+[127][2020-01-07 16:11] 🔄 Retry started #2
+[128][2020-01-07 16:14] ❌ Failure (3)
+[129][2020-01-07 16:24] 🔄 Retry started #3
+[130][2020-01-07 16:26] ❌ Failure (4)
+[131][2020-01-07 16:26] 🚨 No more retries. Wait until next planned refresh.
+[132][2020-01-08 06:00] 🚀 Refresh started
+[133][2020-01-08 06:02] ❌ Failure (1)
+[134][2020-01-08 06:02] 🔄 Retry started #1
+[135][2020-01-08 06:04] ❌ Failure (2)
+[136][2020-01-08 06:09] 🔄 Retry started #2
+[137][2020-01-08 06:13] ❌ Failure (3)
+[138][2020-01-08 06:23] 🔄 Retry started #3
+[139][2020-01-08 06:24] ❌ Failure (4)
+[140][2020-01-08 06:24] 🚨 No more retries. Wait until next planned refresh.
+[141][2020-01-08 16:00] 🚀 Refresh started
+[142][2020-01-08 16:04] ❌ Failure (1)
+[143][2020-01-08 16:04] 🔄 Retry started #1
+[144][2020-01-08 16:09] ❌ Failure (2)
+[145][2020-01-08 16:14] 🔄 Retry started #2
+[146][2020-01-08 16:17] ❌ Failure (3)
+[147][2020-01-08 16:27] 🔄 Retry started #3
+[148][2020-01-08 16:28] ❌ Failure (4)
+[149][2020-01-08 16:28] 🚨 No more retries. Wait until next planned refresh.
+[150][2020-01-09 06:00] 🚀 Refresh started
+[151][2020-01-09 06:02] ❌ Failure (1)
+[152][2020-01-09 06:02] 🔄 Retry started #1
+[153][2020-01-09 06:03] ❌ Failure (2)
+[154][2020-01-09 06:08] 🔄 Retry started #2
+[155][2020-01-09 06:11] ❌ Failure (3)
+[156][2020-01-09 06:21] 🔄 Retry started #3
+[157][2020-01-09 06:22] ❌ Failure (4)
+[158][2020-01-09 06:22] 🚨 No more retries. Wait until next planned refresh.
+[159][2020-01-09 16:00] 🚀 Refresh started
+[160][2020-01-09 16:04] ❌ Failure (1)
+[161][2020-01-09 16:04] 🔄 Retry started #1
+[162][2020-01-09 16:08] ✅ Success
+[163][2020-01-10 06:00] 🚀 Refresh started
+[164][2020-01-10 06:04] ❌ Failure (1)
+[165][2020-01-10 06:04] 🔄 Retry started #1
+[166][2020-01-10 06:08] ❌ Failure (2)
+[167][2020-01-10 06:13] 🔄 Retry started #2
+[168][2020-01-10 06:16] ❌ Failure (3)
+[169][2020-01-10 06:26] 🔄 Retry started #3
+[170][2020-01-10 06:29] ✅ Success
+[171][2020-01-10 16:00] 🚀 Refresh started
+[172][2020-01-10 16:05] ❌ Failure (1)
+[173][2020-01-10 16:05] 🔄 Retry started #1
+[174][2020-01-10 16:08] ❌ Failure (2)
+[175][2020-01-10 16:13] 🔄 Retry started #2
+[176][2020-01-10 16:15] ❌ Failure (3)
+[177][2020-01-10 16:25] 🔄 Retry started #3
+[178][2020-01-10 16:27] ❌ Failure (4)
+[179][2020-01-10 16:27] 🚨 No more retries. Wait until next planned refresh.
+[180][2020-01-11 06:00] 🚀 Refresh started
+[181][2020-01-11 06:04] ❌ Failure (1)
+[182][2020-01-11 06:04] 🔄 Retry started #1
+[183][2020-01-11 06:08] ❌ Failure (2)
+[184][2020-01-11 06:13] 🔄 Retry started #2
+[185][2020-01-11 06:15] ❌ Failure (3)
+[186][2020-01-11 06:25] 🔄 Retry started #3
+[187][2020-01-11 06:30] ❌ Failure (4)
+[188][2020-01-11 06:30] 🚨 No more retries. Wait until next planned refresh.
+[189][2020-01-11 16:00] 🚀 Refresh started
+[190][2020-01-11 16:05] ❌ Failure (1)
+[191][2020-01-11 16:05] 🔄 Retry started #1
+[192][2020-01-11 16:10] ❌ Failure (2)
+[193][2020-01-11 16:15] 🔄 Retry started #2
+[194][2020-01-11 16:20] ❌ Failure (3)
+[195][2020-01-11 16:30] 🔄 Retry started #3
+[196][2020-01-11 16:35] ✅ Success
+[197][2020-01-12 06:00] 🚀 Refresh started
+[198][2020-01-12 06:01] ❌ Failure (1)
+[199][2020-01-12 06:01] 🔄 Retry started #1
+[200][2020-01-12 06:04] ❌ Failure (2)
+[201][2020-01-12 06:09] 🔄 Retry started #2
+[202][2020-01-12 06:10] ❌ Failure (3)
+[203][2020-01-12 06:20] 🔄 Retry started #3
+[204][2020-01-12 06:21] ❌ Failure (4)
+[205][2020-01-12 06:21] 🚨 No more retries. Wait until next planned refresh.
+[206][2020-01-12 16:00] 🚀 Refresh started
+[207][2020-01-12 16:05] ❌ Failure (1)
+[208][2020-01-12 16:05] 🔄 Retry started #1
+[209][2020-01-12 16:09] ❌ Failure (2)
+[210][2020-01-12 16:14] 🔄 Retry started #2
+[211][2020-01-12 16:16] ❌ Failure (3)
+[212][2020-01-12 16:26] 🔄 Retry started #3
+[213][2020-01-12 16:31] ❌ Failure (4)
+[214][2020-01-12 16:31] 🚨 No more retries. Wait until next planned refresh.
+[215][2020-01-13 06:00] 🚀 Refresh started
+[216][2020-01-13 06:01] ❌ Failure (1)
+[217][2020-01-13 06:01] 🔄 Retry started #1
+[218][2020-01-13 06:03] ❌ Failure (2)
+[219][2020-01-13 06:08] 🔄 Retry started #2
+[220][2020-01-13 06:10] ❌ Failure (3)
+[221][2020-01-13 06:20] 🔄 Retry started #3
+[222][2020-01-13 06:23] ❌ Failure (4)
+[223][2020-01-13 06:23] 🚨 No more retries. Wait until next planned refresh.
+[224][2020-01-13 16:00] 🚀 Refresh started
+[225][2020-01-13 16:02] ❌ Failure (1)
+[226][2020-01-13 16:02] 🔄 Retry started #1
+[227][2020-01-13 16:06] ❌ Failure (2)
+[228][2020-01-13 16:11] 🔄 Retry started #2
+[229][2020-01-13 16:13] ❌ Failure (3)
+[230][2020-01-13 16:23] 🔄 Retry started #3
+[231][2020-01-13 16:26] ❌ Failure (4)
+[232][2020-01-13 16:26] 🚨 No more retries. Wait until next planned refresh.
+[233][2020-01-14 06:00] 🚀 Refresh started
+[234][2020-01-14 06:05] ❌ Failure (1)
+[235][2020-01-14 06:05] 🔄 Retry started #1
+[236][2020-01-14 06:10] ❌ Failure (2)
+[237][2020-01-14 06:15] 🔄 Retry started #2
+[238][2020-01-14 06:19] ❌ Failure (3)
+[239][2020-01-14 06:29] 🔄 Retry started #3
+[240][2020-01-14 06:34] ❌ Failure (4)
+[241][2020-01-14 06:34] 🚨 No more retries. Wait until next planned refresh.
+[242][2020-01-14 16:00] 🚀 Refresh started
+[243][2020-01-14 16:02] ❌ Failure (1)
+[244][2020-01-14 16:02] 🔄 Retry started #1
+[245][2020-01-14 16:07] ❌ Failure (2)
+[246][2020-01-14 16:12] 🔄 Retry started #2
+[247][2020-01-14 16:17] ✅ Success
+[248][2020-01-15 06:00] 🚀 Refresh started
+[249][2020-01-15 06:03] ❌ Failure (1)
+[250][2020-01-15 06:03] 🔄 Retry started #1
+[251][2020-01-15 06:05] ❌ Failure (2)
+[252][2020-01-15 06:10] 🔄 Retry started #2
+[253][2020-01-15 06:11] ❌ Failure (3)
+[254][2020-01-15 06:21] 🔄 Retry started #3
+[255][2020-01-15 06:23] ❌ Failure (4)
+[256][2020-01-15 06:23] 🚨 No more retries. Wait until next planned refresh.
+[257][2020-01-15 16:00] 🚀 Refresh started
+[258][2020-01-15 16:04] ❌ Failure (1)
+[259][2020-01-15 16:04] 🔄 Retry started #1
+[260][2020-01-15 16:08] ❌ Failure (2)
+[261][2020-01-15 16:13] 🔄 Retry started #2
+[262][2020-01-15 16:16] ❌ Failure (3)
+[263][2020-01-15 16:26] 🔄 Retry started #3
+[264][2020-01-15 16:29] ❌ Failure (4)
+[265][2020-01-15 16:29] 🚨 No more retries. Wait until next planned refresh.
+[266][2020-01-16 06:00] 🚀 Refresh started
+[267][2020-01-16 06:04] ❌ Failure (1)
+[268][2020-01-16 06:04] 🔄 Retry started #1
+[269][2020-01-16 06:06] ✅ Success
+[270][2020-01-16 16:00] 🚀 Refresh started
+[271][2020-01-16 16:01] ❌ Failure (1)
+[272][2020-01-16 16:01] 🔄 Retry started #1
+[273][2020-01-16 16:05] ❌ Failure (2)
+[274][2020-01-16 16:10] 🔄 Retry started #2
+[275][2020-01-16 16:15] ❌ Failure (3)
+[276][2020-01-16 16:25] 🔄 Retry started #3
+[277][2020-01-16 16:30] ❌ Failure (4)
+[278][2020-01-16 16:30] 🚨 No more retries. Wait until next planned refresh.
+[279][2020-01-17 06:00] 🚀 Refresh started
+[280][2020-01-17 06:01] ❌ Failure (1)
+[281][2020-01-17 06:01] 🔄 Retry started #1
+[282][2020-01-17 06:05] ❌ Failure (2)
+[283][2020-01-17 06:10] 🔄 Retry started #2
+[284][2020-01-17 06:11] ❌ Failure (3)
+[285][2020-01-17 06:21] 🔄 Retry started #3
+[286][2020-01-17 06:22] ❌ Failure (4)
+[287][2020-01-17 06:22] 🚨 No more retries. Wait until next planned refresh.
+[288][2020-01-17 16:00] 🚀 Refresh started
+[289][2020-01-17 16:05] ❌ Failure (1)
+[290][2020-01-17 16:05] 🔄 Retry started #1
+[291][2020-01-17 16:06] ❌ Failure (2)
+[292][2020-01-17 16:11] 🔄 Retry started #2
+[293][2020-01-17 16:14] ❌ Failure (3)
+[294][2020-01-17 16:24] 🔄 Retry started #3
+[295][2020-01-17 16:26] ❌ Failure (4)
+[296][2020-01-17 16:26] 🚨 No more retries. Wait until next planned refresh.
+[297][2020-01-18 06:00] 🚀 Refresh started
+[298][2020-01-18 06:01] ❌ Failure (1)
+[299][2020-01-18 06:01] 🔄 Retry started #1
+[300][2020-01-18 06:03] ❌ Failure (2)
+[301][2020-01-18 06:08] 🔄 Retry started #2
+[302][2020-01-18 06:11] ❌ Failure (3)
+[303][2020-01-18 06:21] 🔄 Retry started #3
+[304][2020-01-18 06:24] ❌ Failure (4)
+[305][2020-01-18 06:24] 🚨 No more retries. Wait until next planned refresh.
+[306][2020-01-18 16:00] 🚀 Refresh started
+[307][2020-01-18 16:02] ❌ Failure (1)
+[308][2020-01-18 16:02] 🔄 Retry started #1
+[309][2020-01-18 16:04] ❌ Failure (2)
+[310][2020-01-18 16:09] 🔄 Retry started #2
+[311][2020-01-18 16:14] ❌ Failure (3)
+[312][2020-01-18 16:24] 🔄 Retry started #3
+[313][2020-01-18 16:26] ❌ Failure (4)
+[314][2020-01-18 16:26] 🚨 No more retries. Wait until next planned refresh.
+[315][2020-01-19 06:00] 🚀 Refresh started
+[316][2020-01-19 06:01] ❌ Failure (1)
+[317][2020-01-19 06:01] 🔄 Retry started #1
+[318][2020-01-19 06:04] ❌ Failure (2)
+[319][2020-01-19 06:09] 🔄 Retry started #2
+[320][2020-01-19 06:10] ❌ Failure (3)
+[321][2020-01-19 06:20] 🔄 Retry started #3
+[322][2020-01-19 06:23] ❌ Failure (4)
+[323][2020-01-19 06:23] 🚨 No more retries. Wait until next planned refresh.
+[324][2020-01-19 16:00] 🚀 Refresh started
+[325][2020-01-19 16:04] ❌ Failure (1)
+[326][2020-01-19 16:04] 🔄 Retry started #1
+[327][2020-01-19 16:07] ❌ Failure (2)
+[328][2020-01-19 16:12] 🔄 Retry started #2
+[329][2020-01-19 16:15] ❌ Failure (3)
+[330][2020-01-19 16:25] 🔄 Retry started #3
+[331][2020-01-19 16:27] ❌ Failure (4)
+[332][2020-01-19 16:27] 🚨 No more retries. Wait until next planned refresh.
+[333][2020-01-20 06:00] 🚀 Refresh started
+[334][2020-01-20 06:04] ❌ Failure (1)
+[335][2020-01-20 06:04] 🔄 Retry started #1
+[336][2020-01-20 06:09] ❌ Failure (2)
+[337][2020-01-20 06:14] 🔄 Retry started #2
+[338][2020-01-20 06:18] ❌ Failure (3)
+[339][2020-01-20 06:28] 🔄 Retry started #3
+[340][2020-01-20 06:32] ❌ Failure (4)
+[341][2020-01-20 06:32] 🚨 No more retries. Wait until next planned refresh.
+[342][2020-01-20 16:00] 🚀 Refresh started
+[343][2020-01-20 16:02] ❌ Failure (1)
+[344][2020-01-20 16:02] 🔄 Retry started #1
+[345][2020-01-20 16:06] ❌ Failure (2)
+[346][2020-01-20 16:11] 🔄 Retry started #2
+[347][2020-01-20 16:12] ❌ Failure (3)
+[348][2020-01-20 16:22] 🔄 Retry started #3
+[349][2020-01-20 16:25] ❌ Failure (4)
+[350][2020-01-20 16:25] 🚨 No more retries. Wait until next planned refresh.
+[351][2020-01-21 06:00] 🚀 Refresh started
+[352][2020-01-21 06:03] ❌ Failure (1)
+[353][2020-01-21 06:03] 🔄 Retry started #1
+[354][2020-01-21 06:06] ❌ Failure (2)
+[355][2020-01-21 06:11] 🔄 Retry started #2
+[356][2020-01-21 06:13] ❌ Failure (3)
+[357][2020-01-21 06:23] 🔄 Retry started #3
+[358][2020-01-21 06:27] ❌ Failure (4)
+[359][2020-01-21 06:27] 🚨 No more retries. Wait until next planned refresh.
+[360][2020-01-21 16:00] 🚀 Refresh started
+[361][2020-01-21 16:04] ❌ Failure (1)
+[362][2020-01-21 16:04] 🔄 Retry started #1
+[363][2020-01-21 16:08] ❌ Failure (2)
+[364][2020-01-21 16:13] 🔄 Retry started #2
+[365][2020-01-21 16:17] ❌ Failure (3)
+[366][2020-01-21 16:27] 🔄 Retry started #3
+[367][2020-01-21 16:29] ❌ Failure (4)
+[368][2020-01-21 16:29] 🚨 No more retries. Wait until next planned refresh.
+[369][2020-01-22 06:00] 🚀 Refresh started
+[370][2020-01-22 06:02] ❌ Failure (1)
+[371][2020-01-22 06:02] 🔄 Retry started #1
+[372][2020-01-22 06:04] ❌ Failure (2)
+[373][2020-01-22 06:09] 🔄 Retry started #2
+[374][2020-01-22 06:13] ❌ Failure (3)
+[375][2020-01-22 06:23] 🔄 Retry started #3
+[376][2020-01-22 06:24] ❌ Failure (4)
+[377][2020-01-22 06:24] 🚨 No more retries. Wait until next planned refresh.
+[378][2020-01-22 16:00] 🚀 Refresh started
+[379][2020-01-22 16:05] ❌ Failure (1)
+[380][2020-01-22 16:05] 🔄 Retry started #1
+[381][2020-01-22 16:10] ❌ Failure (2)
+[382][2020-01-22 16:15] 🔄 Retry started #2
+[383][2020-01-22 16:17] ❌ Failure (3)
+[384][2020-01-22 16:27] 🔄 Retry started #3
+[385][2020-01-22 16:31] ❌ Failure (4)
+[386][2020-01-22 16:31] 🚨 No more retries. Wait until next planned refresh.
+[387][2020-01-23 06:00] 🚀 Refresh started
+[388][2020-01-23 06:05] ❌ Failure (1)
+[389][2020-01-23 06:05] 🔄 Retry started #1
+[390][2020-01-23 06:06] ❌ Failure (2)
+[391][2020-01-23 06:06] 🚧 Not a single successful refresh in over a week
+[392][2020-01-23 06:06] 🚧 Refresh disabled until the user reviews the model settings/configuration
+[393][2020-01-23 06:06] 📧 An email about the incident was sent to the user
+[394][2020-01-23 06:06] 🚪 The end. Bye! 👋

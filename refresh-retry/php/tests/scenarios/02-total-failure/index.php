@@ -2,13 +2,15 @@
 
 use Carbon\Carbon;
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 main();
 
-// Happy Path – the ideal scenario without errors
+// Total Failure Path
 function main(): void
 {
+    mt_srand(12345);
+
     $lines = simulate([
         'limit' => 100,
         'tick' => function (callable $info, string $action, Carbon $now, array &$db, array &$jobs) {
@@ -31,7 +33,7 @@ function main(): void
             if ($action === REFRESH_RETRY_START) {
                 $jobs[] = [
                     'return_at' => $now->copy()->addMinutes(mt_rand(1, 5)),
-                    'action' => REFRESH_RETRY_SUCCESS,
+                    'action' => REFRESH_RETRY_FAILURE,
                 ];
             }
         },
