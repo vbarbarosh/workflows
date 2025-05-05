@@ -231,6 +231,7 @@ function refresh_retry(array $params): void
     }
 
     if ($action === REFRESH_RETRY_SUCCESS) {
+        // ✅ Success → Calculate the next refresh time
         $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
         call_user_func($fn, new RefreshAttempt([
             'planned_at' => $planned_at,
@@ -244,6 +245,7 @@ function refresh_retry(array $params): void
     }
 
     if ($action === REFRESH_RETRY_FAILURE) {
+        // ❌ Failure → Calculate the next retry time
         $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
         $retry_no = $attempt_no - 1;
         if ($retry_no >= count($retry_intervals)) {
@@ -266,9 +268,11 @@ function refresh_retry(array $params): void
     }
 
     if ($action === REFRESH_RETRY_START) {
+        // 🚀 Start → Assume the worst-case scenario where the response is lost ($now + $timeout).
+        //            Skip the timeout and calculate the retry time based on that.
         $deadline_at = $now->copy()->add($timeout);
-        $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));;
-        $planned2_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));;
+        $planned_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($now, 1));
+        $planned2_at = empty($rrule) ? null : Carbon::make($rrule->getNthOccurrenceAfter($deadline_at, 1));
         $retry_no = $attempt_no - 1;
         $retries_exhausted = $retry_no >= count($retry_intervals);
 
@@ -287,9 +291,9 @@ function refresh_retry(array $params): void
         }
 
         call_user_func($fn, new RefreshAttempt([
-            'planned_at' => $planned_at,
+            'planned_at' => $planned2_at,
             'retry_at' => empty($retry_at) ? $planned2_at : RefreshAlignment::retry_align_planned($retry_at, $planned2_at, $timeout),
-            'refresh_at' => $refresh_at, // Next refresh_at after the current refresh times out.
+            'refresh_at' => $refresh_at, // refresh_at after the current refresh times out
             'deadline_at' => $deadline_at,
             'attempt_no' => $attempt_no + 1,
             'retries_exhausted' => $retries_exhausted,
